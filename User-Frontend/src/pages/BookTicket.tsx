@@ -113,27 +113,12 @@ const [generatedOtp, setGeneratedOtp] = useState(""); // OTP from backend
 const [otpSent, setOtpSent] = useState(false);
 const [otpVerified, setOtpVerified] = useState(false);
 
+//qr
+const [qr, setQr] = useState("");
 
 
 
-// Send the generated QR data to backend for email
-const sendQrEmail = async (qrPayload: any) => {
-  try {
-    const res = await axios.post(`${backend_url}/send-qr-email`, {
-      email: qrPayload.email,
-      qrData: qrPayload,
-      bookingId: qrPayload.qrdata.data.bookingId,
-    });
-    if (res.data.success) {
-      toast({ title: "Email Sent", description: "QR code sent to your email." });
-    } else {
-      toast({ title: "Failed to send", description: "Could not send QR code email.", variant: "destructive" });
-    }
-  } catch (err) {
-    console.error(err);
-    toast({ title: "Error", description: "Something went wrong sending email.", variant: "destructive" });
-  }
-};
+
 
 
 // Send OTP to user's email
@@ -274,7 +259,10 @@ const [qrdata,setqrdata]=useState({});
 
    //payment status
    const paymentStatus='pending';
-    const booking: BookingData = { seatNumbers: selectedSeats,paymentStatus, adult,totalSeatsSelected, kids, ticketType, totalAmount: calculateTotal() };
+    const booking: BookingData = {name,
+        email,
+        date: selectedShow.date,
+        timing: selectedShow.time, movieName:movie.title,seatNumbers: selectedSeats,paymentStatus, adult,totalSeatsSelected, kids, ticketType, totalAmount: calculateTotal() };
     
     try {
       const response = await axios.post(`${backend_url}/api/addBooking`, {
@@ -283,12 +271,14 @@ const [qrdata,setqrdata]=useState({});
         date: selectedShow.date,
         timing: selectedShow.time,
         ...booking,
-        movieName:movie.title
+        movieName:movie.title,
+        data:booking
       });
       console.log(response.data);
       setBookedSeats([...bookedSeats, ...selectedSeats]);
       console.log(response.data);
       setqrdata(response.data)
+      setQr(response.qrCode);
       setBookingData(booking);
       if (response.data.success === true) {
       setShowQRModal(true);
@@ -750,7 +740,7 @@ const [qrdata,setqrdata]=useState({});
       <DialogTitle className="text-xl sm:text-2xl font-bold">Your Booking QR Code</DialogTitle>
     </DialogHeader>
 
-    {bookingData && (
+    {/* {bookingData && (
       <div className="flex flex-col items-center gap-4 mt-4">
         <QRCodeSVG
           value={JSON.stringify({
@@ -769,7 +759,11 @@ const [qrdata,setqrdata]=useState({});
           Close
         </Button>
       </div>
-    )}
+    )} */}
+    <div>
+      <button >Generate QR</button>
+      {qr && <img src={qr} alt="QR Code" style={{ width: "200px", height: "200px" }} />}
+    </div>
   </DialogContent>
 </Dialog>
 

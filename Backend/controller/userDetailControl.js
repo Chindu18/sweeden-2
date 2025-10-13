@@ -34,6 +34,20 @@ export const addBooking = async (req, res) => {
     // 👇 generate a bookingId here
     const bookingId = "BKG-" +  uuidv4().split("-")[0];
 
+
+    //qr genreating
+    const qrDataUrl = await QRCode.toDataURL(data, {
+      errorCorrectionLevel: "H",  // highest quality
+      type: "image/png",
+      quality: 1,
+      margin: 2,
+      scale: 10,                  // higher scale = sharper image
+      color: {
+        dark: "#000000",          // QR color
+        light: "#ffffff",         // background color
+      },
+    });
+
     // Save booking with bookingId
     const booking = new Booking({
       ...req.body,
@@ -45,6 +59,7 @@ export const addBooking = async (req, res) => {
       message: "Booking saved successfully",
       success: true,
       data:booking,
+      qrCode: qrDataUrl,
       bookingId 
     });
   } catch (error) {
