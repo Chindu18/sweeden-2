@@ -52,6 +52,30 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
+const parseShowDateTime = (show: Show) => {
+  if (!show.date || !show.time) return null;
+
+  const datePart = new Date(show.date);
+  let hours = 0, minutes = 0;
+
+  if (show.time.includes(":")) {
+    // 24-hour format "14:30"
+    [hours, minutes] = show.time.split(":").map(Number);
+  } else if (show.time.toLowerCase().includes("am") || show.time.toLowerCase().includes("pm")) {
+    // 12-hour format "10.00am"
+    const isPM = show.time.toLowerCase().includes("pm");
+    const [h, m] = show.time.slice(0, -2).split(".").map(Number);
+    hours = isPM ? (h % 12) + 12 : h % 12;
+    minutes = m || 0;
+  }
+
+  const showDateTime = new Date(datePart);
+  showDateTime.setHours(hours, minutes, 0, 0);
+
+  return showDateTime;
+};
+
+
 
 
 //otp
@@ -346,24 +370,52 @@ const [qrdata,setqrdata]=useState({});
                   <Label className="text-lg flex items-center gap-2">
                     <Film className="w-5 h-5 text-accent" /> Shows
                   </Label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {movie.shows?.map((show, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        onClick={() => {
-                          setSelectedShowId(index);
-                          setSelectedDate(show.date);
-                          setSelectedTime(show.time);
-                        }}
-                        className={`border rounded-lg p-3 text-center cursor-pointer transition-all
-                          ${selectedShowId === index ? "bg-accent text-white border-accent" : "bg-background border-border hover:border-accent"}`}
-                      >
-                        <p className="font-semibold">{formatTime(show.time)}</p>
-                        <p className="text-sm">{formatDate(show.date)}</p>
-                      </button>
-                    ))}
-                  </div>
+                  <div>
+{movie.shows
+  ?.filter((show) => {
+  // Parse show date
+  const showDate = new Date(show.date); 
+  //parse show time 
+  const [hours,minutes]=show.time.split(':')
+  
+  //show date + time
+  const showDateTime=new Date(showDate);
+  showDateTime.setHours(hours,minutes,0,0)
+  console.log(showDateTime)
+
+  //current date+time
+  const now=new Date();
+
+  if(showDateTime>=now){
+  return true;
+  }
+  
+  else false;
+})
+
+  .map((show, index) => (
+    <button
+      key={index}
+      onClick={() => {
+        setSelectedShowId(index);
+        setSelectedDate(show.date);
+        setSelectedTime(show.time);
+      }}
+      className={`m-2 px-6 border rounded-lg p-3 text-center cursor-pointer transition-all ${
+        selectedShowId === index
+          ? "bg-accent text-white border-accent"
+          : "bg-background border-border hover:border-accent"
+      }`}
+    >
+      <p className="font-semibold">{formatTime(show.time)}</p>
+      <p className="text-sm">{formatDate(show.date)}</p>
+    </button>
+  ))}
+</div>
+
+
+
+
                 </div>
               </CardContent>
             </Card>

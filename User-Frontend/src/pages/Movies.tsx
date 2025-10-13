@@ -136,6 +136,7 @@ const castMembers = [
           </Carousel>
         </div>
       </section>
+  
 
       {/* Cast Section */}
       <section className="py-20 bg-muted/30">
