@@ -1,6 +1,11 @@
 // controllers/bookingController.js
 import Booking from "../Models/Booking.js";
 import Movies from "../Models/Movies.js";
+import QRCode from "qrcode";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 export const getTotalSeats = async (req, res) => {
   try {
     const { movieName } = req.query; // get movieName from query params
@@ -86,6 +91,62 @@ export const updatePaymentStatus = async (req, res) => {
     if (!booking) {
       return res.status(404).json({ success: false, message: "Booking not found" });
     }
+    
+     // ✅ Extract fields from booking
+    const { name, email, movieName, date, timing, seatNumbers, totalAmount } = booking;
+
+    // ✅ Create QR code (only encode bookingId)
+    const qrDataUrl = await QRCode.toDataURL(JSON.stringify({
+      bookingId,
+      movieName,
+      date,
+      timing,
+      seatNumbers,
+    }));
+
+    const base64QR = qrDataUrl.split(",")[1];
+
+    // ✅ Send Email
+    try {
+      await resend.emails.send({
+        from: "MovieZone <onboarding@resend.dev>",
+        to: email,
+        subject: `🎟️ Your Booking QR - ${bookingId}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; background-color: #1c1c1c; color: #fff; padding: 20px;">
+            <h2 style="color: #e50914;">🎬 Booking Confirmation</h2>
+            <p>Hi ${name},</p>
+            <p>Here’s your QR code and ticket details.</p>
+            <div style="background-color: #2c2c2c; padding: 15px; border-radius: 8px;">
+              <p><strong>Movie:</strong> ${movieName}</p>
+              <p><strong>Date:</strong> ${date}</p>
+              <p><strong>Time:</strong> ${timing}</p>
+              <p><strong>Seats:</strong> ${seatNumbers.join(", ")}</p>
+              <p><strong>Total Amount:</strong> ₹${totalAmount}</p>
+              <p><strong>Payment:</strong> ${paymentStatus}</p>
+              <img src="cid:qrcode"
+                   alt="QR Code"
+                   style="margin-top: 15px; border: 2px solid #e50914; border-radius: 10px; width: 180px;" />
+            </div>
+            <p style="margin-top: 20px;">Show this QR at the theater entrance 🎟️</p>
+          </div>
+        `,
+        attachments: [
+          {
+            filename: "qrcode.png",
+            content: base64QR,
+            content_id: "qrcode", // Embedded image
+          },
+        ],
+      });
+    } catch (err) {
+      console.error("❌ Error sending mail:", err.message);
+      return res.status(500).json({
+        success: false,
+        message: "Booking fetched but email failed: " + err.message,
+      });
+    }
+
 
     res.json({
       success: true,
@@ -142,9 +203,6 @@ export const getTotalShows = async (req, res) => {
 
 ///id
 
-
-
-// ✅ Get booking details by bookingId
 export const getBookingById = async (req, res) => {
   try {
     const { bookingId } = req.params;
@@ -165,11 +223,13 @@ export const getBookingById = async (req, res) => {
       });
     }
 
+   
     res.json({
       success: true,
-      message: "Booking fetched successfully",
+      message: "Booking fetched and QR sent to email successfully",
       data: booking,
     });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({
