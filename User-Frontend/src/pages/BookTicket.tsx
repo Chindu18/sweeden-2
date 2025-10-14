@@ -190,7 +190,7 @@ const [qr, setQr] = useState("");
   axios.get(`${backend_url}/api/bookedSeats`, {
     params: { date: selectedDate, timing: selectedTime }
   })
-  .then(res => setBookedSeats(res.data.data)) // <-- access data array
+  .then(res =>{ setBookedSeats(res.data.data);console.log(res.data.data)}) // <-- access data array
   .catch(err => console.log(err));
 }, [selectedDate, selectedTime]);
 

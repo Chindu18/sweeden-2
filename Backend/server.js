@@ -15,6 +15,7 @@ import path from 'path';
 import dashboardRouter from './Routes/dashboard.js';
 import otprouter from './Routes/otp.js';
 import emailRouter from './Routes/email.js';
+import blockRouter from './Routes/block.js';
 
 // Serve the uploads folder inside movies
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads/movies')));
@@ -30,6 +31,7 @@ app.use('/dashboard',dashboardRouter);
 //otp routes
 app.use('/otp',otprouter)
 app.use('/booking',emailRouter)
+app.use('/seats',blockRouter)
 
 // Root test
 app.get("/", (req, res) => res.send("Backend server running"));
