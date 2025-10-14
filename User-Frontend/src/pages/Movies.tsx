@@ -105,56 +105,73 @@ const Movies = () => {
             <div className="w-32 h-1 bg-accent mx-auto rounded-full"></div>
           </div>
 
-          <Carousel className="w-full animate-slide-up">
-            <CarouselContent>
-              {carouselItems.map((item) => (
-                <CarouselItem key={item.id}>
-                  <div className="relative group w-full h-[100vh] flex items-center justify-center">
-                    {item.type === "trailer" && !playTrailer && (
-                      <>
-                        <img
-                          src={item.poster}
-                          alt="Trailer Poster"
-                          className="w-full h-[100vh] object-cover rounded-2xl shadow-2xl"
-                        />
-                        <div
-                          className="absolute inset-0 flex items-center justify-center z-10 cursor-pointer"
-                          onClick={() => setPlayTrailer(true)}
-                        >
-                          <div className="w-24 h-24 bg-black/60 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-                            <span className="text-white text-4xl">&#9658;</span>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                    {item.type === "trailer" && playTrailer && (
-                      <video
-                        src={item.video}
-                        controls
-                        autoPlay
-                        className="w-full h-[100vh] object-cover rounded-2xl shadow-2xl"
-                      />
-                    )}
-                    {item.type === "poster" && (
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-full h-[100vh] object-cover rounded-2xl shadow-2xl"
-                      />
-                    )}
+         <Carousel className="w-full animate-slide-up">
+  <CarouselContent>
+    {carouselItems.map((item) => (
+      <CarouselItem key={item.id}>
+        <div
+          className="relative group w-full 
+          h-[250px] sm:h-[400px] md:h-[600px] lg:h-[700px] 
+          flex items-center justify-center overflow-hidden rounded-2xl"
+        >
+          {/* 🎬 Trailer Poster Before Play */}
+          {item.type === "trailer" && !playTrailer && (
+            <>
+              <img
+                src={item.poster}
+                alt="Trailer Poster"
+                className="w-full h-full object-cover rounded-2xl shadow-2xl"
+              />
+              <div
+                className="absolute inset-0 flex items-center justify-center z-10 cursor-pointer"
+                onClick={() => setPlayTrailer(true)}
+              >
+                <div className="w-14 h-14 sm:w-20 sm:h-20 bg-black/60 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+                  <span className="text-white text-3xl sm:text-4xl">&#9658;</span>
+                </div>
+              </div>
+            </>
+          )}
 
-                    {/* Title Overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-                      <h3 className="text-4xl md:text-5xl font-bold mb-2 drop-shadow-lg">{item.title}</h3>
-                      {item.type === "trailer" && <p className="text-lg text-white/80">Trailer</p>}
-                    </div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="left-4 h-14 w-14 bg-white/10 backdrop-blur-md border-white/20 hover:bg-accent hover:border-accent" />
-            <CarouselNext className="right-4 h-14 w-14 bg-white/10 backdrop-blur-md border-white/20 hover:bg-accent hover:border-accent" />
-          </Carousel>
+          {/* 🎥 Trailer Playing */}
+          {item.type === "trailer" && playTrailer && (
+            <video
+              src={item.video}
+              controls
+              autoPlay
+              className="w-full h-full object-cover rounded-2xl shadow-2xl"
+            />
+          )}
+
+          {/* 🎞️ Poster Items */}
+          {item.type === "poster" && (
+            <img
+              src={item.image}
+              alt={item.title}
+              className="w-full h-full object-cover rounded-2xl shadow-2xl"
+            />
+          )}
+
+          {/* 🏷️ Title Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 text-white bg-gradient-to-t from-black/70 via-black/40 to-transparent rounded-b-2xl">
+            <h3 className="text-xl sm:text-3xl md:text-4xl font-bold mb-1 drop-shadow-lg">
+              {item.title}
+            </h3>
+            {item.type === "trailer" && (
+              <p className="text-xs sm:text-sm md:text-lg text-white/80">Trailer</p>
+            )}
+          </div>
+        </div>
+      </CarouselItem>
+    ))}
+  </CarouselContent>
+
+  {/* Navigation Buttons */}
+  <CarouselPrevious className="left-2 sm:left-4 h-8 w-8 sm:h-10 sm:w-10 bg-white/10 backdrop-blur-md border-white/20 hover:bg-accent hover:border-accent" />
+  <CarouselNext className="right-2 sm:right-4 h-8 w-8 sm:h-10 sm:w-10 bg-white/10 backdrop-blur-md border-white/20 hover:bg-accent hover:border-accent" />
+</Carousel>
+
+
         </div>
       </section>
 
