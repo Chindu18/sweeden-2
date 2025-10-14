@@ -79,12 +79,15 @@ const Movies = () => {
   carouselItems.push(...posterItems);
 
   // Cast & Crew members
-  const castMembers = [
-    { id: 1, name: Movielist.cast?.hero || "Hero Name", role: "Hero" },
-    { id: 2, name: Movielist.cast?.heroine || "Heroine Name", role: "Heroine" },
-    { id: 3, name: Movielist.cast?.villain || "Villain Name", role: "Villain" },
-    { id: 4, name: Movielist.cast?.supportArtists?.join(", ") || "Support Artists", role: "Support" },
+ 
+
+const castMembers = [
+    { id: 1, name: Movielist.cast?.actor || "Hero Name", role: "Hero" },
+    { id: 2, name: Movielist.cast?.actress || "Heroine Name", role: "Heroine" },
+    { id: 3, name: Movielist.cast?.villan || "Villain Name", role: "Villain" },
+    { id: 4, name: Movielist.cast?.supporting || "Support Artists", role: "Support" },
   ];
+
 
   const crewMembers = [
     { id: 1, name: Movielist.crew?.director || "Director", role: "Direction" },
