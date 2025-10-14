@@ -107,6 +107,8 @@ const BookTicket = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
 
+  const [Phone,setPhone]=useState(0)
+
   //otp
 const [otp, setOtp] = useState("");        // user-entered OTP
 const [generatedOtp, setGeneratedOtp] = useState(""); // OTP from backend
@@ -354,6 +356,7 @@ const handleBooking = async () => {
       setKids(0);
       setTicketType("");
       setSelectedSeats([]);
+      setPhone(0);
     }
   } catch (error: any) {
     toast({
@@ -369,8 +372,8 @@ const handleBooking = async () => {
   // -------------------- Seat Layout --------------------
   const seatLayoutSets = [
     [19, 19, 21, 21, 21, 21, 21, 21],
-    [19, 19, 19, 19, 19, 19, 19],
-    [7],
+    [19, 19, 19, 19, 19, 19, 19, 19, 19],
+    [6],
   ];
   let currentSeatNumber = 1;
 
@@ -556,7 +559,16 @@ const handleBooking = async () => {
         +
       </button>
     </div>
+    
+     
+    
   </div>
+   {ticketType==='online'?<div className="space-y-2">
+                  <Label htmlFor="phone" className="text-lg flex items-center gap-2">
+                    <Users className="w-5 h-5 text-accent" /> Contact Number
+                  </Label>
+                  <Input id="phone"   type="tel" inputMode="numeric"  value={Phone} maxLength={10} minLength={10} onChange={(e) => setPhone(e.target.value)} placeholder="Enter your mobile number" className="text-lg p-6 border-2 focus:border-accent" />
+                </div>:<></>}
 
   {/* Total Seats */}
   <p className="text-lg font-semibold text-center sm:text-left">
@@ -578,21 +590,55 @@ const handleBooking = async () => {
 
             {/* Selected Seats Card */}
             <Card className="border-2 border-accent shadow-xl animate-slide-up">
-              <CardContent className="p-6">
-                <Label className="text-foreground text-lg font-semibold mb-3 block">Selected Seats</Label>
-                <div className="p-4 bg-muted rounded-lg min-h-[80px] flex items-center justify-center">
-                  {selectedSeats.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {selectedSeats.sort((a, b) => a - b).map((seat) => (
-                        <span key={seat} className="px-4 py-2 bg-seat-selected text-white rounded-lg font-bold text-lg shadow-lg">{seat}</span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground text-lg">No seats selected</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+  <CardContent className="p-6">
+    <Label className="text-foreground text-lg font-semibold mb-3 block">
+      Selected Seats
+    </Label>
+
+    <div className="p-4 bg-muted rounded-lg min-h-[80px] flex items-center justify-center">
+      {selectedSeats.length > 0 ? (
+        <div className="flex flex-wrap gap-2">
+          {selectedSeats
+            .sort((a, b) => a - b)
+            .map((seat) => {
+              // flatten all seat layout sets to count total rows
+              const seatsPerRow = seatLayoutSets.flat();
+
+              // find which row this seat belongs to
+              let totalSeatsCounted = 0;
+              let rowIndex = 0;
+              for (let i = 0; i < seatsPerRow.length; i++) {
+                totalSeatsCounted += seatsPerRow[i];
+                if (seat <= totalSeatsCounted) {
+                  rowIndex = i;
+                  break;
+                }
+              }
+
+              // convert row index → letter (A, B, C…)
+              const rowLetter = String.fromCharCode(65 + rowIndex);
+
+              // keep the original seat number (don’t reset)
+              const seatLabel = `${rowLetter}-${seat}`;
+
+              return (
+                <span
+                  key={seat}
+                  className="px-4 py-2 bg-seat-selected text-white rounded-lg font-bold text-lg shadow-lg"
+                >
+                  {seatLabel}
+                </span>
+              );
+            })}
+        </div>
+      ) : (
+        <p className="text-muted-foreground text-lg">No seats selected</p>
+      )}
+    </div>
+  </CardContent>
+</Card>
+
+
           {/* OTP Section */}
                <div className="mb-4 space-y-3">
                     <Label htmlFor="otp" className="text-lg flex items-center gap-2">
@@ -615,9 +661,9 @@ const handleBooking = async () => {
                       <Button
                         onClick={sendOtp}
                         className="bg-accent text-white flex-1"
-                        disabled={otpSent} // disable if OTP already sent
+                        
                       >
-                        {otpSent ? "OTP Sent" : "Send OTP"}
+                        {otpSent ? "Resent OTP" : "Send OTP"}
                       </Button>
 
                       {/* Verify OTP Button */}
@@ -714,40 +760,71 @@ const handleBooking = async () => {
 
       {/* Scrollable seat layout */}
       <div className="overflow-x-auto w-full">
-        <div className="inline-block min-w-max px-1 sm:px-2 space-y-2">
-          {seatLayoutSets.map((set, setIndex) => {
-            const maxCols = Math.max(...set);
-            return set.map((cols, rowIndex) => (
-              <div key={`set${setIndex}-${rowIndex}`} className="flex justify-center items-center gap-1 sm:gap-2">
-                {/* Row numbers left */}
-                <span className="text-xs sm:text-sm text-muted-foreground font-bold w-6 sm:w-8 text-right">{currentSeatNumber}</span>
+  <div className="inline-block min-w-max px-1 sm:px-2 space-y-2">
+    {seatLayoutSets.map((set, setIndex) => {
+      const maxCols = Math.max(...set);
 
-                {/* Seats */}
-                {Array.from({ length: maxCols }, (_, seatIndex) => {
-                  if (seatIndex < Math.floor((maxCols - cols) / 2) || seatIndex >= Math.floor((maxCols - cols) / 2) + cols) {
-                    return <div key={`empty-${setIndex}-${rowIndex}-${seatIndex}`} className="w-6 sm:w-8 h-6 sm:h-8" />;
-                  }
-                  const seatNumber = currentSeatNumber++;
-                  return (
-                    <button
-                      key={seatNumber}
-                      onClick={() => handleSeatClick(seatNumber)}
-                      className={`w-6 sm:w-8 h-6 sm:h-8 text-[9px] sm:text-[11px] rounded ${getSeatColor(seatNumber)} 
-                        hover:opacity-80 transition-all duration-200 font-bold text-white flex items-center justify-center shadow`}
-                      disabled={bookedSeats.includes(seatNumber)}
-                    >
-                      {seatNumber}
-                    </button>
-                  );
-                })}
+      // count how many total rows came before this set
+      const previousRows = seatLayoutSets
+        .slice(0, setIndex)
+        .reduce((acc, prevSet) => acc + prevSet.length, 0);
 
-                {/* Row numbers right */}
-                <span className="text-xs sm:text-sm text-muted-foreground font-bold w-6 sm:w-8 text-left">{currentSeatNumber - 1}</span>
-              </div>
-            ));
-          })}
-        </div>
-      </div>
+      return set.map((cols, rowIndex) => {
+        // continuous row letter
+        const rowLetter = String.fromCharCode(65 + previousRows + rowIndex);
+
+        return (
+          <div
+  key={`set${setIndex}-${rowIndex}`}
+  className={`flex justify-center items-center gap-1 sm:gap-2 ${
+    rowIndex === 7 ? "mb-6 sm:mb-8 md:mb-10 lg:mb-10"  :""  // 👈 add gap after 7th row only
+  }`}
+>
+
+            {/* Row letter left */}
+            <span className="text-xs sm:text-sm text-muted-foreground font-bold w-6 sm:w-8 text-right">
+              {rowLetter}
+            </span>
+
+            {/* Seats */}
+            {Array.from({ length: maxCols }, (_, seatIndex) => {
+              if (
+                seatIndex < Math.floor((maxCols - cols) / 2) ||
+                seatIndex >= Math.floor((maxCols - cols) / 2) + cols
+              ) {
+                return (
+                  <div
+                    key={`empty-${setIndex}-${rowIndex}-${seatIndex}`}
+                    className="w-6 sm:w-8 h-6 sm:h-8"
+                  />
+                );
+              }
+              const seatNumber = currentSeatNumber++;
+              return (
+                <button
+                  key={seatNumber}
+                  onClick={() => handleSeatClick(seatNumber)}
+                  className={`w-6 sm:w-8 h-6 sm:h-8 text-[9px] sm:text-[11px] rounded ${getSeatColor(
+                    seatNumber
+                  )} hover:opacity-80 transition-all duration-200 font-bold text-white flex items-center justify-center shadow`}
+                  disabled={bookedSeats.includes(seatNumber)}
+                >
+                  {seatNumber}
+                </button>
+              );
+            })}
+
+            {/* Row letter right */}
+            <span className="text-xs sm:text-sm text-muted-foreground font-bold w-6 sm:w-8 text-left">
+              {rowLetter}
+            </span>
+          </div>
+        );
+      });
+    })}
+  </div>
+</div>
+
     </CardContent>
   </Card>
 </div>

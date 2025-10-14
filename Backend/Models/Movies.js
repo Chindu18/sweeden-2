@@ -32,6 +32,7 @@ const movieSchema = new mongoose.Schema(
       cinematographer: { type: String, default: "", required: true },
     },
     posters: { type: [String],required: true }, // uploaded images URLs
+      trailer: { type: String, required: true },
     shows: { type: [showSchema],required: true}, // store array of shows
   },
   { timestamps: true }

@@ -41,25 +41,29 @@ interface Movie {
   shows: Show[];
 }
 
-const formatTime = (timeString) => {
+const formatTime = (timeString: string) => {
   const [hour, minute] = timeString.split(':');
   const date = new Date();
-  date.setHours(hour, minute);
+  date.setHours(Number(hour), Number(minute));
   return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 };
 
-const formatDate = (dateString) => {
+const formatDate = (dateString: string) => {
   const options = { weekday: 'short', day: 'numeric', month: 'short' };
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
-
-const Movies =() => {
- 
-  const backend_url = 'https://swedenn-backend.onrender.com';
+const Movies = () => {
+  const backend_url = 'http://localhost:8004';
   const [movies, setMovies] = useState<Movie[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [modalMovie, setModalMovie] = useState<Movie | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Trailer & poster
+  const [trailerPreview, setTrailerPreview] = useState<string | null>(null);
+  const [trailerFile, setTrailerFile] = useState<File | null>(null);
+  const [posterPreviews, setPosterPreviews] = useState<string[]>([]);
 
   const initialFormData: Omit<Movie, "_id"> & { posters: File[] } = {
     title: "",
@@ -68,16 +72,13 @@ const Movies =() => {
     posters: [],
     shows: [],
   };
-
   const [formData, setFormData] = useState(initialFormData);
-  const [posterPreviews, setPosterPreviews] = useState<string[]>([]);
 
   // ---------------------- Fetch existing movies ----------------------
   const fetchMovies = async () => {
     try {
       const res = await axios.get(`${backend_url}/movie/getmovie`);
       setMovies(res.data.data);
-      console.log(res.data.data)
     } catch (err) {
       console.error("Error fetching movies:", err);
     }
@@ -87,7 +88,7 @@ const Movies =() => {
     fetchMovies();
   }, []);
 
-  // ---------------------- Input Handlers ----------------------
+  // ---------------------- Handlers ----------------------
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     section?: keyof Omit<Movie, "_id" | "title" | "posters" | "shows">,
@@ -107,7 +108,14 @@ const Movies =() => {
     setPosterPreviews(files.map((f) => URL.createObjectURL(f)));
   };
 
-  // ---------------------- Shows ----------------------
+  const handleTrailerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setTrailerFile(file);
+      setTrailerPreview(URL.createObjectURL(file));
+    }
+  };
+
   const addShow = () => {
     setFormData({
       ...formData,
@@ -135,9 +143,14 @@ const Movies =() => {
     setFormData({ ...formData, shows });
   };
 
-  // ---------------------- Submit Form ----------------------
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!trailerFile) {
+      alert("Please upload a trailer!");
+      return;
+    }
+
+    setLoading(true);
     try {
       const data = new FormData();
       data.append("title", formData.title);
@@ -150,38 +163,56 @@ const Movies =() => {
       data.append("musicDirector", formData.crew.musicDirector);
       data.append("cinematographer", formData.crew.cinematographer);
       data.append("showTimings", JSON.stringify(formData.shows));
-      formData.posters.forEach((file) => data.append("photos", file));
+      formData.posters.forEach((file) => {
+        if (file instanceof File) data.append("photos", file);
+      });
+      data.append("trailer", trailerFile);
 
-      const res = await axios.post(`${backend_url}/api/addDetails`, data, { headers: { "Content-Type": "multipart/form-data" } });
+      await axios.post(`${backend_url}/api/addDetails`, data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-      setMovies((prev) => [res.data.data, ...prev]);
+      alert("Movie saved successfully!");
       setFormData(initialFormData);
       setPosterPreviews([]);
-      setShowForm(false);
-      alert("Movie saved successfully!");
+      setTrailerFile(null);
+      setTrailerPreview(null);
+      fetchMovies();
     } catch (err: any) {
       console.error("Error saving movie:", err.response?.data || err.message);
-      alert("Failed to save movie. Check console for details.");
+      alert("Failed to save movie. Check console.");
+    } finally {
+      setLoading(false);
     }
   };
-const getPosterSrc = (poster: File | string) =>
-  poster instanceof File
-    ? URL.createObjectURL(poster)
-    : poster;
+
+  const getPosterSrc = (poster: File | string) =>
+    poster instanceof File ? URL.createObjectURL(poster) : poster;
 
   // ---------------------- JSX ----------------------
   return (
     <div className="min-h-screen bg-background p-8">
       <h1 className="text-4xl font-bold mb-4">Movies Collection</h1>
 
-      <button className="bg-blue-600 text-white px-4 py-2 rounded mb-6" onClick={() => setShowForm(!showForm)}>
+      <button
+        className="bg-blue-600 text-white px-4 py-2 rounded mb-6"
+        onClick={() => setShowForm(!showForm)}
+      >
         {showForm ? "Close Form" : "Add Movie"}
       </button>
 
       {showForm && (
         <form className="mb-6 max-w-3xl p-6 border rounded shadow space-y-4" onSubmit={handleSubmit}>
           {/* Title */}
-          <input type="text" name="title" placeholder="Movie Title" value={formData.title} onChange={handleChange} required className="border p-2 w-full rounded" />
+          <input
+            type="text"
+            name="title"
+            placeholder="Movie Title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+            className="border p-2 w-full rounded"
+          />
 
           {/* Cast */}
           <div>
@@ -218,7 +249,13 @@ const getPosterSrc = (poster: File | string) =>
           {/* Posters */}
           <div>
             <label className="font-semibold">Posters (3 max):</label>
-            <input type="file" multiple accept="image/*" onChange={handlePosterUpload} required />
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handlePosterUpload}
+              required
+            />
             <div className="flex gap-2 mt-2">
               {posterPreviews.map((src, idx) => (
                 <img key={idx} src={src} alt={`Poster ${idx + 1}`} className="w-24 h-24 object-cover border rounded" />
@@ -226,20 +263,65 @@ const getPosterSrc = (poster: File | string) =>
             </div>
           </div>
 
+          {/* Trailer */}
+          <div>
+            <label className="font-semibold">Trailer:</label>
+            <input
+              type="file"
+              accept="video/*"
+              onChange={handleTrailerUpload}
+              required
+            />
+            {trailerPreview && (
+              <div className="mt-2">
+                <video
+                  src={trailerPreview}
+                  controls
+                  className="w-full max-w-md border rounded"
+                />
+              </div>
+            )}
+          </div>
+
           {/* Shows */}
           <div>
             <label className="font-semibold">Shows:</label>
             {formData.shows.map((show, idx) => (
               <div key={idx} className="border p-3 rounded mb-3 space-y-2">
-                <input type="date" value={show.date} onChange={(e) => handleShowChange(idx, "date", null, null, e.target.value)} className="border p-2 w-full rounded" required />
-                <input type="time" placeholder="Show Time" value={show.time} onChange={(e) => handleShowChange(idx, "time", null, null, e.target.value)} className="border p-2 w-full rounded" required />
-
+                <input
+                  type="date"
+                  value={show.date}
+                  onChange={(e) => handleShowChange(idx, "date", null, null, e.target.value)}
+                  className="border p-2 w-full rounded"
+                  required
+                />
+                <input
+                  type="time"
+                  value={show.time}
+                  onChange={(e) => handleShowChange(idx, "time", null, null, e.target.value)}
+                  className="border p-2 w-full rounded"
+                  required
+                />
                 <div className="grid grid-cols-3 gap-2">
                   {(["online", "videoSpeed", "soder"] as const).map((method) => (
                     <div key={method} className="border p-2 rounded space-y-1">
                       <p className="font-medium">{method}</p>
-                      <input type="text" placeholder="Adult Price" value={show.prices[method].adult} onChange={(e) => handleShowChange(idx, "prices", method, "adult", e.target.value)} className="border p-1 w-full rounded" required />
-                      <input type="text" placeholder="Kids Price" value={show.prices[method].kids} onChange={(e) => handleShowChange(idx, "prices", method, "kids", e.target.value)} className="border p-1 w-full rounded" required />
+                      <input
+                        type="text"
+                        placeholder="Adult Price"
+                        value={show.prices[method].adult}
+                        onChange={(e) => handleShowChange(idx, "prices", method, "adult", e.target.value)}
+                        className="border p-1 w-full rounded"
+                        required
+                      />
+                      <input
+                        type="text"
+                        placeholder="Kids Price"
+                        value={show.prices[method].kids}
+                        onChange={(e) => handleShowChange(idx, "prices", method, "kids", e.target.value)}
+                        className="border p-1 w-full rounded"
+                        required
+                      />
                     </div>
                   ))}
                 </div>
@@ -250,8 +332,14 @@ const getPosterSrc = (poster: File | string) =>
             </button>
           </div>
 
-          <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded mt-4">
-            Save Movie
+          {/* Save Button */}
+          <button
+            type="submit"
+            className="bg-green-600 text-white px-4 py-2 rounded mt-4 flex items-center justify-center gap-2 disabled:opacity-70"
+            disabled={loading}
+          >
+            {loading && <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>}
+            {loading ? "Saving..." : "Save Movie"}
           </button>
         </form>
       )}
@@ -262,9 +350,7 @@ const getPosterSrc = (poster: File | string) =>
           <Card key={movie._id} className="cursor-pointer hover:shadow-lg" onClick={() => setModalMovie(movie)}>
             <img src={getPosterSrc(movie.posters[0])} alt={movie.title} className="w-full h-64 object-cover" />
             <CardContent className="flex justify-between p-3">
-              <span>
-                {movie.title}
-              </span>
+              <span>{movie.title}</span>
             </CardContent>
           </Card>
         ))}
@@ -278,15 +364,9 @@ const getPosterSrc = (poster: File | string) =>
               <X />
             </button>
             <h2 className="text-2xl font-bold mb-4">{modalMovie.title}</h2>
-            <p className="mb-2">
-              <strong>Cast:</strong> {Object.values(modalMovie.cast).join(", ")}
-            </p>
-            <p className="mb-2">
-              <strong>Crew:</strong> {Object.values(modalMovie.crew).join(", ")}
-            </p>
-            <p className="mb-2">
-              <strong>Shows:</strong>
-            </p>
+            <p className="mb-2"><strong>Cast:</strong> {Object.values(modalMovie.cast).join(", ")}</p>
+            <p className="mb-2"><strong>Crew:</strong> {Object.values(modalMovie.crew).join(", ")}</p>
+            <p className="mb-2"><strong>Shows:</strong></p>
             <ul className="list-disc pl-5">
               {modalMovie.shows.map((show, idx) => (
                 <li key={idx}>
