@@ -26,13 +26,13 @@ const Contact = () => {
     {
       icon: <MapPin className="w-10 h-10 text-accent" />,
       title: "Visit Us",
-      content: ["Sweden Tamil Film Theater", "Nanganallur", "Chennai, Tamil Nadu, India"],
+      content: ["varby gard-varby gard t-bana,varby alle 14,143 40 varby,sweden "],
       gradient: "from-red-500 to-pink-500",
     },
     {
       icon: <Phone className="w-10 h-10 text-accent" />,
       title: "Call Us",
-      content: ["+91 98765 43210", "+91 98765 43211"],
+      content: ["+46704859228 +46739844564 "],
       gradient: "from-blue-500 to-cyan-500",
     },
     {
@@ -189,12 +189,12 @@ const Contact = () => {
                 How to Reach Us
               </h2>
               <div className="grid md:grid-cols-3 gap-8">
-                <div className="space-y-4 p-6 bg-accent/5 rounded-xl hover:bg-accent/10 transition-colors">
+                {/* <div className="space-y-4 p-6 bg-accent/5 rounded-xl hover:bg-accent/10 transition-colors">
                 
                  
                   <p className="text-muted-foreground text-center">
                     varby gard-varby gard t-bana,varby alle 14,143 40 varby,sweden         </p>
-                </div>
+                </div> */}
                 
                 <div className="space-y-4 p-6 bg-accent/5 rounded-xl hover:bg-accent/10 transition-colors">
                   <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto">
