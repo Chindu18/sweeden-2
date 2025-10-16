@@ -53,8 +53,7 @@ export const addBooking = async (req, res) => {
     // 7️⃣ Save booking
  const booking = new Booking({
   ...req.body,
-  collectorType:'',
-  collectorId:'',
+ 
   totalSeatsSelected: totalSeats, // map correctly
   bookingId
 });

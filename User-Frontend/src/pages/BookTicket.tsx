@@ -280,6 +280,8 @@ const handleBooking = async () => {
     kids,
     ticketType,
     totalAmount: calculateTotal(),
+     collectorType:'',
+     collectorId:'',
   };
 
   try {
