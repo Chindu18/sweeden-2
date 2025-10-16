@@ -47,7 +47,7 @@ export const addBooking = async (req, res) => {
     const bookingId = "BKG-" + uuidv4().split("-")[0];
 
     // 6️⃣ Generate QR code
-    const qrDataUrl = await QRCode.toDataURL(JSON.stringify({ bookingId, name, email, movieName, date, timing, seatNumbers, totalAmount, paymentStatus,ticketType }));
+    const qrDataUrl = await QRCode.toDataURL(JSON.stringify({ bookingId, name, email, movieName, date, timing, seatNumbers, totalAmount, paymentStatus}));
     const base64QR = qrDataUrl.split(",")[1];
 
     // 7️⃣ Save booking
@@ -78,7 +78,6 @@ export const addBooking = async (req, res) => {
               <p><strong>Seats:</strong> ${seatNumbers.join(", ")}</p>
               <p><strong>Total Amount:</strong> ₹${totalAmount}</p>
               <p><strong>Payment:</strong> ${paymentStatus}</p>
-              <p><strong>Payment type:</strong> ${ticketType}</p>
               <p><strong>Payment:</strong>video speed</p> 
             </div>
             <p style="margin-top: 20px;">Show this QR at the theater entrance 🎟️</p>
