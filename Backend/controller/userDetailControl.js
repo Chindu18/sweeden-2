@@ -24,7 +24,7 @@ import Blockedseats from "../Models/blocked.js";
 // ---------------- Add Booking ----------------
 export const addBooking = async (req, res) => {
   try {
-    const { name, email, date, timing, seatNumbers, movieName, totalAmount, paymentStatus,phone,totalSeats} = req.body;
+    const { name, email, date, timing, seatNumbers, movieName, totalAmount, paymentStatus,phone,totalSeats,ticketType} = req.body;
 
     // 1️⃣ Check for already booked seats
     const existingBookings = await Booking.find({ date, timing });
