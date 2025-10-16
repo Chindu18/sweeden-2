@@ -120,7 +120,7 @@ export const updatePaymentStatus = async (req, res) => {
           <p><strong>Seats:</strong> ${booking.seatNumbers.join(", ")}</p>
           <p><strong>Total Amount:</strong> ₹${booking.totalAmount}</p>
           <p><strong>Payment:</strong> ${paymentStatus}</p>
-          <p><strong>Payment:</strong> ${booking.ticketType}</p>
+          <p><strong>Payment mood:</strong> ${booking.ticketType}</p>
           <img src="cid:qrcode" style="width:180px; border:2px solid #e50914; border-radius:10px;" />
         </div>
       </div>`,

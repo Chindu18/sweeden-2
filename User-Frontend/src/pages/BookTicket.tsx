@@ -294,7 +294,15 @@ const handleBooking = async () => {
       setShowQRModal(true);
 
       toast({
-        title: ticketType === "online" ? "We will contact you soon! for collect your banking details" : "Booking Successful!",
+        title: ticketType === "online" ? "mode:online we will get back soon for banking details" : "Booking Successful!",
+        description: "Your ticket has been booked."
+      });
+       toast({
+        title: ticketType === "video speed" ? "mode:video speed " : "Booking Successful!",
+        description: "Your ticket has been booked."
+      });
+       toast({
+        title: ticketType === "others" ? "mode:video speed" : "Booking Successful!",
         description: "Your ticket has been booked."
       });
 
