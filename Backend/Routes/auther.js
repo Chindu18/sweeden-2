@@ -3,52 +3,39 @@ import auth from "../Models/users.js"
 
 // Get summary per collector
 
+// Example: GET /api/collector/:collectorId?movieName=MovieA
 export const getCollectorSummary = async (req, res) => {
   try {
     const { collectorId } = req.params;
+    const { movieName } = req.query;
 
-    // Ensure collectorId is provided
-    if (!collectorId) {
-      return res.status(400).json({ success: false, message: "Collector ID is required" });
-    }
+    if (!collectorId) return res.status(400).json({ success: false, message: "Collector ID is required" });
 
-    // Aggregate bookings by movieName and date, summing totalAmount for 'paid' status
+    const matchObj = { collectorId, paymentStatus: "paid" };
+    if (movieName) matchObj.movieName = movieName;
+
     const stats = await Booking.aggregate([
-      {
-        $match: {
-          collectorId,
-          paymentStatus: "paid",
-        },
-      },
+      { $match: matchObj },
       {
         $group: {
-          _id: {
-            movieName: "$movieName",
-            date: "$date",
-          },
+          _id: { movieName: "$movieName", date: "$date" },
           totalAmount: { $sum: "$totalAmount" },
         },
       },
       {
-        $project: {
-          _id: 0,
-          movieName: "$_id.movieName",
-          date: "$_id.date",
-          totalAmount: 1,
-        },
+        $project: { _id: 0, movieName: "$_id.movieName", date: "$_id.date", totalAmount: 1 },
       },
-      {
-        $sort: { date: 1 }, // Optional: Sort by date ascending
-      },
+      { $sort: { date: 1 } },
     ]);
 
-    // Return the aggregated statistics
     res.json({ success: true, data: stats });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
 
 // Get all collectors and total count
 export const getCollectors = async (req, res) => {

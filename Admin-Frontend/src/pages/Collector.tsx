@@ -23,24 +23,41 @@ const Collector = () => {
   const [loading, setLoading] = useState(true);
   const [grandTotal, setGrandTotal] = useState(0);
 
+  const [movie, setMovie] = useState<any>(null); // Latest movie
   const backend_url = "https://swedenn-backend.onrender.com";
 
-  // Fetch all collectors first
+  // Fetch the latest movie
   useEffect(() => {
+    const fetchMovie = async () => {
+      try {
+        const response = await axios.get(`${backend_url}/movie/getmovie`);
+        const data = response.data.data;
+        if (data && data.length > 0) setMovie(data[data.length - 1]);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchMovie();
+  }, []);
+
+  // Fetch collectors and their stats
+  useEffect(() => {
+    if (!movie) return; // Wait for movie to load
+
     const fetchCollectors = async () => {
+      setLoading(true);
       try {
         const res = await axios.get(`${backend_url}/api/allcollector`);
         if (res.data.success) {
           const collectorsData: CollectorType[] = res.data.collectors;
 
-          // For each collector, fetch their stats and calculate total amount
           const collectorsWithStats = await Promise.all(
             collectorsData.map(async (collector) => {
               try {
-                const statsRes = await axios.get(`${backend_url}/api/collector/${collector._id}`);
+                const statsRes = await axios.get(
+                  `${backend_url}/api/collector/${collector._id}?movieName=${encodeURIComponent(movie.title)}`
+                );
                 const stats: CollectorStats[] = statsRes.data.data || [];
-                
-                // Sum totalAmount for this collector
                 const totalCollected = stats.reduce((acc, item) => acc + item.totalAmount, 0);
                 return { ...collector, collectAmount: totalCollected };
               } catch {
@@ -49,11 +66,9 @@ const Collector = () => {
             })
           );
 
-          // Set collectors
           setCollectors(collectorsWithStats);
           setTotalCollectors(collectorsWithStats.length);
 
-          // Calculate grand total collection
           const total = collectorsWithStats.reduce(
             (acc, collector) => acc + (collector.collectAmount || 0),
             0
@@ -68,14 +83,14 @@ const Collector = () => {
     };
 
     fetchCollectors();
-  }, []);
+  }, [movie]); // re-run when movie loads
 
   if (loading) return <div>Loading collectors...</div>;
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Total Collectors: {totalCollectors}</h1>
-      <h1 className="text-2xl font-bold mb-4">Total Collection: ₹{grandTotal}</h1>
+      <h1 className="text-2xl font-bold mb-4">Total Collection for "{movie?.title}": ₹{grandTotal}</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {collectors.map((collector) => (
