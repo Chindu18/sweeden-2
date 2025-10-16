@@ -296,17 +296,17 @@ const handleBooking = async () => {
      if (ticketType === "online") {
   toast({
     title: "Mode: Online — we will get back soon for banking details",
-    description: "Your ticket has been booked."
+    description: "Mode: Online — we will get back soon for banking details"
   });
 } else if (ticketType === "video speed") {
   toast({
     title: "Mode: Video Speed",
-    description: "Your ticket has been booked."
+    description: "Mode: Video Speed,Your ticket has been booked."
   });
 } else if (ticketType === "others") {
   toast({
     title: "Mode: Others",
-    description: "Your ticket has been booked."
+    description: "Mode: Others,Your ticket has been booked."
   });
 } else {
   toast({
