@@ -280,7 +280,7 @@ const castMembers = [
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 sm:gap-2 text-accent hover:text-accent/80 font-semibold text-base sm:text-lg transition-colors"
                 >
-                  View in Google Maps →
+                  Utbildningsvagen 2A,147 40 Tumba,sweden
                 </a>
               </CardContent>
             </Card>

@@ -164,7 +164,7 @@ const Contact = () => {
             <Card className="border-2 border-border shadow-2xl overflow-hidden animate-slide-up" style={{ animationDelay: '0.1s' }}>
               <div className="h-full min-h-[600px]">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.2299380163456!2d80.18644761482165!3d12.959634490858995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a525d0f5b1a2f95%3A0x3e1c5b1e5b1a2f95!2sNanganallur%2C%20Chennai%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1234567890123!5m2!1sen!2sin"
+                  src="https://share.google/2RZXgXTTE8BdlSjl1"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
@@ -190,40 +190,27 @@ const Contact = () => {
               </h2>
               <div className="grid md:grid-cols-3 gap-8">
                 <div className="space-y-4 p-6 bg-accent/5 rounded-xl hover:bg-accent/10 transition-colors">
-                  <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto">
-                    <span className="text-3xl">🚇</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground text-center">By Metro</h3>
+                
+                 
                   <p className="text-muted-foreground text-center">
-                    Take the Chennai Metro and get down at the nearest station. Our theater is a 10-minute walk from there.
-                  </p>
+                    varby gard-varby gard t-bana,varby alle 14,143 40 varby,sweden         </p>
                 </div>
                 
                 <div className="space-y-4 p-6 bg-accent/5 rounded-xl hover:bg-accent/10 transition-colors">
                   <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto">
                     <span className="text-3xl">🚌</span>
                   </div>
-                  <h3 className="text-xl font-bold text-foreground text-center">By Bus</h3>
+                 
                   <p className="text-muted-foreground text-center">
-                    Multiple bus routes pass through Nanganallur. Check the local transport app for the latest schedules.
-                  </p>
+                   Utbildningsvagen 2A,147 40 Tumba,sweden   </p>
                 </div>
                 
-                <div className="space-y-4 p-6 bg-accent/5 rounded-xl hover:bg-accent/10 transition-colors">
-                  <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto">
-                    <span className="text-3xl">🚗</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground text-center">By Car</h3>
-                  <p className="text-muted-foreground text-center">
-                    Ample parking space is available for our visitors. Follow the Google Maps directions for the easiest route.
-                  </p>
-                </div>
+               
               </div>
               
               <div className="mt-10 p-6 bg-gradient-to-r from-accent/10 via-accent/5 to-accent/10 border-l-4 border-accent rounded-xl">
                 <p className="text-lg text-foreground">
-                  <strong className="text-accent text-xl">💡 Pro Tip:</strong> For bulk bookings (more than 20 tickets) or special screenings, please contact us at least 3 days in advance for the best arrangements.
-                </p>
+                   </p>
               </div>
             </CardContent>
           </Card>
