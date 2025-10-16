@@ -24,7 +24,7 @@ import Blockedseats from "../Models/blocked.js";
 // ---------------- Add Booking ----------------
 export const addBooking = async (req, res) => {
   try {
-    const { name, email, date, timing, seatNumbers, movieName, totalAmount, paymentStatus,phone,totalSeats,ticketType} = req.body;
+    const { name, email, date, timing, seatNumbers, movieName, totalAmount, paymentStatus,phone,totalSeats} = req.body;
 
     // 1️⃣ Check for already booked seats
     const existingBookings = await Booking.find({ date, timing });
@@ -79,7 +79,7 @@ export const addBooking = async (req, res) => {
               <p><strong>Total Amount:</strong> ₹${totalAmount}</p>
               <p><strong>Payment:</strong> ${paymentStatus}</p>
               <p><strong>Payment type:</strong> ${ticketType}</p>
-              <p><strong>Payment:</strong> your qr code below here</p> 
+              <p><strong>Payment:</strong>video speed</p> 
             </div>
             <p style="margin-top: 20px;">Show this QR at the theater entrance 🎟️</p>
           </div>
