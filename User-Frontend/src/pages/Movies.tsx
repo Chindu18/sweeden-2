@@ -273,9 +273,9 @@ const castMembers = [
                   <MapPin className="w-6 h-6 sm:w-8 sm:h-8 text-accent" />
                   <h3 className="text-2xl sm:text-3xl font-bold text-white">Location</h3>
                 </div>
-                <p className="text-base sm:text-lg mb-2 sm:mb-4 text-white">Nanganallur, Chennai</p>
+                <p className="text-base sm:text-lg mb-2 sm:mb-4 text-white">varby gard-varby gard t-bana,varby alle 14,143 40 varby,sweden</p>
                 <a
-                  href="https://www.google.com/maps"
+                  href="https://share.google/reJxV2DULn5kWR8p9"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 sm:gap-2 text-accent hover:text-accent/80 font-semibold text-base sm:text-lg transition-colors"
@@ -293,8 +293,8 @@ const castMembers = [
                   <h3 className="text-2xl sm:text-3xl font-bold text-white">Contact</h3>
                 </div>
                 <div className="space-y-1 sm:space-y-2 text-base sm:text-lg text-white">
-                  <p>+91 98765 43210</p>
-                  <p>+91 98765 43211</p>
+                  <p>+46704859228</p>
+                  <p>+46739844564</p>
                 </div>
               </CardContent>
             </Card>
