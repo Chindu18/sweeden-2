@@ -147,7 +147,7 @@ const About = () => {
       </section>
 
       {/* Theater Stats */}
-      <section className="py-16 bg-muted/30">
+      {/* <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
             <div className="text-center">
@@ -168,7 +168,7 @@ const About = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 };
