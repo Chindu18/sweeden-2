@@ -106,7 +106,7 @@ export const updatePaymentStatus = async (req, res) => {
 
     // ✅ Send email
     await resend.emails.send({
-      from: "MovieZone <onboarding@resend.dev>",
+      from: "MovieZone <noreply@tamilmovie.no>",
       to: booking.email,
       subject: `🎟️ Your Booking QR - ${bookingId}`,
       html: `<div style="font-family: Arial, sans-serif; color: #fff; background: #1c1c1c; padding: 20px;">

@@ -557,12 +557,7 @@ const unblockSeat = async (seatToUnblock: number) => {
             {modalMovie.shows.map((show, idx) => (
               <div key={idx} className="flex justify-between items-center mb-2 border p-2 rounded">
                 <span>{formatDate(show.date)} - {formatTime(show.time)}</span>
-                <button
-                  className="bg-gray-300 text-black px-2 py-1 rounded"
-                  onClick={() => handleOpenSeatBlocker(modalMovie, show)}
-                >
-                  Block Seats
-                </button>
+               
               </div>
             ))}
           </div>
