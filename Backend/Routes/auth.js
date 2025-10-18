@@ -54,7 +54,7 @@ authrouter.post("/login", async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "2h" });
+    const token = jwt.sign({ id: user._id }, ezxrdcfghbjklmsdfgjijkyvyuhbkuytrrss, { expiresIn: "2h" });
     res.json({ message: "Login successful", token ,data:user._id});
   } catch (err) {
     res.status(500).json({ error: err.message });

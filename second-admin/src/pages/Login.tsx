@@ -16,7 +16,7 @@ import {
 import { toast } from "sonner";
 import axios from "axios";
 
-const API_URL = "https://swedenn-backend.onrender.com";
+const API_URL = "https://swedenn-backend.onrender.com/";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -39,7 +39,7 @@ const Login = () => {
 
     try {
       if (isLogin) {
-        const res = await axios.post(`${API_URL}/auth/login`, {
+        const res = await axios.post(`${API_URL}/login`, {
           username,
           password,
           collectorType: localStorage.getItem("collectorType") || collectorType, // send from localStorage
@@ -55,7 +55,7 @@ const Login = () => {
         // Navigate to dashboard
         navigate("/dashboard");
       } else {
-        const res = await axios.post(`${API_URL}/auth/register`, {
+        const res = await axios.post(`${API_URL}/register`, {
           username,
           password,
           phone,
