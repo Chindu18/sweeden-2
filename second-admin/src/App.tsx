@@ -14,11 +14,13 @@ import Scanner from "./pages/Scanner";
 import Contact from "./pages/Contact";
 
 // ✅ Protected Route
+// ProtectedRoute.tsx
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const token = sessionStorage.getItem("token");
-  if (!token) return <Navigate to="/" replace />;
+  const loggedIn = sessionStorage.getItem("loggedIn");
+  if (!loggedIn) return <Navigate to="/" replace />;
   return <>{children}</>;
 };
+
 
 // ✅ Layout for all protected pages (includes Navbar)
 const ProtectedLayout = () => (

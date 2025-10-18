@@ -16,7 +16,7 @@ import {
 import { toast } from "sonner";
 import axios from "axios";
 
-const API_URL = "https://swedenn-backend.onrender.com/";
+const API_URL = "https://swedenn-backend.onrender.com/auth";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -38,23 +38,22 @@ const Login = () => {
     }
 
     try {
-if (isLogin) {
-  const res = await axios.post(`${API_URL}/login`, {
-    username,
-    password,
-    collectorType: localStorage.getItem("collectorType") || collectorType,
-  });
+      if (isLogin) {
+        const res = await axios.post(`${API_URL}/login`, {
+          username,
+          password,
+        });
 
-  toast.success(res.data.message || "Login successful");
+        toast.success(res.data.message || "Login successful");
 
-  // Save basic user info
-  localStorage.setItem("collectorType", res.data.collectorType || collectorType);
-  localStorage.setItem("id", res.data.userId);
-  localStorage.setItem("username", res.data.username);
+        // ✅ Save login flag and user info
+        sessionStorage.setItem("loggedIn", "true");
+        localStorage.setItem("id", res.data.userId);
+        localStorage.setItem("username", res.data.username);
+        localStorage.setItem("collectorType", res.data.collectorType || collectorType);
 
-  // Navigate to dashboard
-  navigate("/dashboard");
-
+        // Navigate to dashboard
+        navigate("/dashboard");
       } else {
         const res = await axios.post(`${API_URL}/register`, {
           username,
@@ -90,7 +89,6 @@ if (isLogin) {
 
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username */}
             <div className="space-y-2">
               <Label>Username</Label>
               <Input
@@ -101,7 +99,6 @@ if (isLogin) {
               />
             </div>
 
-            {/* Password */}
             <div className="space-y-2">
               <Label>Password</Label>
               <Input
@@ -113,7 +110,7 @@ if (isLogin) {
               />
             </div>
 
-            {/* Register fields */}
+            {/* Optional: Register fields */}
             {!isLogin && (
               <>
                 <div className="space-y-2">
@@ -178,7 +175,6 @@ if (isLogin) {
               </>
             )}
 
-            {/* Submit */}
             <Button
               type="submit"
               className="w-full h-11 bg-gradient-to-r from-primary to-red-700 hover:opacity-90 transition-opacity shadow-lg text-lg font-semibold"
@@ -186,7 +182,6 @@ if (isLogin) {
               {isLogin ? "Login" : "Register"}
             </Button>
 
-            {/* Toggle */}
             <div className="text-center pt-3">
               {isLogin ? (
                 <p className="text-sm">
