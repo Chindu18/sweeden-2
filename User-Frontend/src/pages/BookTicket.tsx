@@ -899,7 +899,15 @@ const handleBooking = async () => {
         <p style={{ margin: "4px 0" }}><strong>Total Amount:</strong> SEK{bookingData.totalAmount}</p>
         <p style={{ margin: "4px 0" }}><strong>Booking Type:</strong>{bookingData.ticketType}</p>
        <p style={{ margin: "4px 0" }}>
-  <strong>Booking Seats:</strong> {bookingData?.seatNumbers?.map(seat => `Seat-${seat}`).join(", ")}
+ <p style={{ margin: "4px 0" }}>
+  <strong>Seats:</strong>{" "}
+  {bookingData?.seatNumbers
+    ?.map((seat, index) => {
+      const rowNumber = Math.ceil((index + 1) / 24); // 24 = seats per row
+      return `${rowNumber}-${seat}`;
+    })
+    .join(", ")}
+</p>
 </p>
 
       </div>
