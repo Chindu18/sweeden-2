@@ -567,35 +567,38 @@ const handleBooking = async () => {
    <div className="p-4 bg-muted rounded-lg min-h-[80px] flex items-center justify-center">
   {selectedSeats.length > 0 ? (
     <div className="flex flex-wrap gap-2">
-    {selectedSeats
-  .sort((a, b) => a - b)
-  .map((seat) => {
-    let seatCounter = 1;
-    let rowNumber = 1;
-    let seatInRow = 0;
+      {selectedSeats
+        .sort((a, b) => a - b)
+        .map((seat) => {
+          // flatten all seat layout sets to count total rows
+          const seatsPerRow = seatLayoutSets.flat();
 
-    for (const row of seatLayoutSets.flat()) {
-      if (seat > seatCounter + row - 1) {
-        seatCounter += row;
-        rowNumber++;
-      } else {
-        seatInRow = seat - seatCounter + 1;
-        break;
-      }
-    }
+          // find which row this seat belongs to
+          let totalSeatsCounted = 0;
+          let rowIndex = 0;
+          for (let i = 0; i < seatsPerRow.length; i++) {
+            totalSeatsCounted += seatsPerRow[i];
+            if (seat <= totalSeatsCounted) {
+              rowIndex = i;
+              break;
+            }
+          }
 
-    const seatLabel = `${rowNumber}-${seatInRow}`;
+          // row number (1-based)
+          const rowNumber = rowIndex + 1;
 
-    return (
-      <span
-        key={seat}
-        className="px-4 py-2 bg-seat-selected text-white rounded-lg font-bold text-lg shadow-lg"
-      >
-        {seatLabel}
-      </span>
-    );
-  })}
+          // keep the original seat number
+          const seatLabel = `${rowNumber}-${seat}`;
 
+          return (
+            <span
+              key={seat}
+              className="px-4 py-2 bg-seat-selected text-white rounded-lg font-bold text-lg shadow-lg"
+            >
+              {seatLabel}
+            </span>
+          );
+        })}
     </div>
   ) : (
     <p className="text-muted-foreground text-lg">No seats selected</p>
