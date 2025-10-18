@@ -37,17 +37,29 @@ const Dashboard = () => {
   const [openIndex, setOpenIndex] = useState(null);
   const [singleId, setsingleId] = useState({});
 
-  const formatTime = (timeString) => {
-    const [hour, minute] = timeString.split(':');
-    const date = new Date();
-    date.setHours(hour, minute);
-    return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-  };
+ const formatTime = (timeString) => {
+  if (!timeString) return "";
+  const [hour, minute] = timeString.split(":").map(Number);
+  const date = new Date();
+  date.setHours(hour, minute, 0, 0);
+  return date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true, // shows AM/PM
+  });
+};
 
-  const formatDate = (dateString) => {
-    const options = { weekday: 'short', day: 'numeric', month: 'short' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    weekday: "long", // e.g., Saturday
+    month: "long",   // e.g., October
+    day: "numeric",  // e.g., 18
+    year: "numeric", // e.g., 2025
+  });
+};
+
 interface CollectorStats {
   movieName: string;
   date: string;
