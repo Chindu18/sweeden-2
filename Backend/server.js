@@ -22,12 +22,18 @@ import emailRouter from './Routes/email.js';
 import blockRouter from './Routes/block.js';
 import authrouter from './Routes/auth.js';
 import collectorRouter from './Routes/collector.js';
+import snackrouter from './Routes/snackRoutes.js';
+import orderRouter from './Routes/snackOrderRoutes.js';
+import { startAutoReminder,manualTriggerAutoReminder } from './middlewares/autoReminder.js';
 
 // Serve the uploads folder inside movies
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads/movies')));
+app.use("/uploads", express.static("uploads"));
 
 
-
+//for snacks add
+app.use('/snacks',snackrouter);
+app.use('/orderfood',orderRouter);
 
 // Mount main router
 app.use('/api', userRouter);
@@ -42,11 +48,26 @@ app.use('/seats',blockRouter)
 //colletors
 app.use('/collectors',collectorRouter)
 
+
+app.use('/snacksorder', snackrouter);
+startAutoReminder();
 // Root test
 app.get("/", (req, res) => res.send("Backend server running"));
 
 // Connect DB
 database_connection();
+
+
+app.get("/test-reminder", async (req, res) => {
+  try {
+    await manualTriggerAutoReminder(); // call manually
+    res.send("✅ Test reminder job executed successfully");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("❌ Test reminder failed");
+  }
+});
+
 
 // Start server
 app.listen(port, () => {

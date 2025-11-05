@@ -89,9 +89,11 @@ const Navbar = () => {
   const navLinks = [
     { name: "Dashboard", path: "/dashboard" },
     { name: "Movies", path: "/movies" },
+    { name: "Snacks", path: "/snacks" },
     { name: "Scanner", path: "/scanner" },
     { name: "Revenue", path: "/revenue" },
     { name: "Contact", path: "/contact" },
+    
   ];
 
   if (!isLoggedIn) return null;

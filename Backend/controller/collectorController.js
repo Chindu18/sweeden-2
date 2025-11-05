@@ -74,6 +74,9 @@ export const changecollector = async (req, res) => {
     const booking = await Booking.findOne({ bookingId: bookingid });
     if (!booking) return res.status(404).json({ message: "Booking not found" });
 
+    // 🆕 Save old collector type before updating
+    const previousCollector = booking.collectorType || "N/A";
+
     // 2️⃣ Find movie by title
     const movie = await Movie.findOne({ title: booking.movieName });
     if (!movie) return res.status(404).json({ message: "Movie not found" });
@@ -114,20 +117,22 @@ export const changecollector = async (req, res) => {
     const totalAmount = booking.adult * adultPrice + booking.kids * kidsPrice;
 
     // 7️⃣ Update booking fields
- 
-    booking.ticketType = collectorType; // ✅ also change ticket type
+    booking.collectorChangedFrom = previousCollector; // ✅ Store old collector
+    booking.collectorType = collectorType;
+    booking.ticketType = collectorType;
     booking.totalAmount = totalAmount;
 
     await booking.save();
 
     // 8️⃣ Send back updated details
     res.status(200).json({
-      message: "Collector type and ticket type changed successfully",
+      message: `Collector changed successfully from "${previousCollector}" to "${collectorType}"`,
       updatedBooking: {
         bookingId: booking.bookingId,
         movieName: booking.movieName,
         date: booking.date,
         time: booking.timing,
+        previousCollector,
         collectorType,
         ticketType: booking.ticketType,
         adultPrice,
@@ -141,6 +146,7 @@ export const changecollector = async (req, res) => {
     res.status(500).json({ message: "Error changing collector" });
   }
 };
+
 
 
 

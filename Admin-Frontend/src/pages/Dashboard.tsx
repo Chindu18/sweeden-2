@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { IndianRupee, Users, TrendingUp, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +22,7 @@ interface Booking {
   timing: string;
   paymentStatus: string;
   ticketType: string;
+  collectorChangedFrom: string;
   totalAmount: number;
 }
 
@@ -117,6 +119,7 @@ const Dashboard = () => {
 
         const combined = [...pendingResp.data.data, ...paidResp.data.data];
         setAllBookings(combined);
+        console.log("Combined Bookings:", combined);
         setBookings(combined);
         setPendingMoney(pendingResp.data.totalAmount);
         setPaidMoney(paidResp.data.totalAmount);
@@ -163,7 +166,7 @@ const Dashboard = () => {
         paymentStatus: "paid",
       });
       const updatedBooking = res.data.data;
-
+      console.log("Updated Booking:", updatedBooking);
       setBookings((prev) => {
         const updated = [...prev];
         updated[pendingToggleIndex].paymentStatus = "paid";
@@ -239,7 +242,7 @@ const Dashboard = () => {
       <div>
         <p className="text-sm text-muted-foreground">Collected</p>
         <p className="text-3xl font-bold mt-2 flex items-center gap-1">
-          <IndianRupee className="h-6 w-6" /> {paidMoney}
+         SEK {paidMoney}
         </p>
       </div>
       <TrendingUp className="h-6 w-6 text-green-600" />
@@ -262,7 +265,7 @@ const Dashboard = () => {
       <div>
         <p className="text-sm text-muted-foreground">Pending</p>
         <p className="text-3xl font-bold mt-2 flex items-center gap-1">
-          <IndianRupee className="h-6 w-6" /> {pendingMoney}
+          SEK {pendingMoney}
         </p>
       </div>
       <Clock className="h-6 w-6 text-orange-600" />
@@ -274,7 +277,7 @@ const Dashboard = () => {
       <CardContent className="p-6 flex justify-between items-center">
         <div>
           <p className="text-sm text-muted-foreground">Collectors</p>
-          <p className="text-3xl font-bold mt-2">{TotalCollectors}</p>
+          <p className="text-3xl font-bold mt-2">Show more</p>
         </div>
         <TrendingUp className="h-6 w-6 text-purple-600" />
       </CardContent>
@@ -346,9 +349,11 @@ const Dashboard = () => {
                     <TableHead>Email</TableHead>
                     <TableHead>Seats</TableHead>
                     <TableHead>Show</TableHead>
-                    <TableHead className="text-center">Status</TableHead>
-                    <TableHead>Method</TableHead>
+                    
+                    <TableHead>Choosen Method</TableHead>
+                    <TableHead>Paid Method</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
+                    <TableHead className="text-center">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -357,14 +362,24 @@ const Dashboard = () => {
                       <TableCell>{b.bookingId}</TableCell>
                       <TableCell>{b.name}</TableCell>
                       <TableCell>{b.email}</TableCell>
-                      <TableCell>{b.seatNumbers.join(", ")}</TableCell>
+                     <TableCell>
+  {b.seatNumbers.map((s: any) => `R${s.row}-S${s.seat}`).join(", ")}
+</TableCell>
+
                       <TableCell>
                         {formatDate(b.date)} <br />
                         <span className="text-sm text-muted-foreground">
                           {formatTime(b.timing)}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center">
+                     
+                      <TableCell>{b.collectorChangedFrom}</TableCell>
+                      <TableCell>{b.ticketType}</TableCell>
+                      <TableCell className="text-right font-semibold">
+                        SEK {" "}
+                        {b.totalAmount}
+                      </TableCell>
+                       <TableCell className="text-center">
                         <button
                           onClick={() => {
                             if (b.paymentStatus.toLowerCase() === "pending") {
@@ -381,11 +396,6 @@ const Dashboard = () => {
                         >
                           {b.paymentStatus}
                         </button>
-                      </TableCell>
-                      <TableCell>{b.ticketType}</TableCell>
-                      <TableCell className="text-right font-semibold">
-                        <IndianRupee className="inline h-4 w-4" />{" "}
-                        {b.totalAmount}
                       </TableCell>
                     </TableRow>
                   ))}

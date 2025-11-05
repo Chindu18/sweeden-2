@@ -1,7 +1,9 @@
+
 "use client";
 import { useState, useEffect } from "react";
 import { AddMovieForm } from "@/components/addMovie/AddMovieForm";
 import axios from "axios";
+import SeatBlocker from "@/components/SeatBlocker"; // ✅ create this new component file
 
 interface Movie {
   _id: string;
@@ -13,6 +15,7 @@ interface Movie {
 const Movies = () => {
   const backend_url = "http://localhost:8004";
   const [activeMovieForm, setActiveMovieForm] = useState<number | null>(null);
+  const [showSeatBlocker, setShowSeatBlocker] = useState(false); // ✅ new state
 
   const [movie1, setMovie1] = useState<Movie | null>(null);
   const [movie2, setMovie2] = useState<Movie | null>(null);
@@ -56,7 +59,7 @@ const Movies = () => {
         fetchCurrentMovies();
       }}
       moviePosition={position}
-      movieData={movieData} // pass movie for editing
+      movieData={movieData}
     />
   );
 
@@ -78,7 +81,6 @@ const Movies = () => {
               {movie.title}
             </div>
 
-            {/* Hover buttons */}
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 rounded-lg">
               <button
                 className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold"
@@ -103,12 +105,11 @@ const Movies = () => {
               setActiveMovieForm(activeMovieForm === position ? null : position)
             }
           >
-            Add Movie {position}
+            Screen {position}
           </button>
         )}
       </div>
 
-      {/* Show AddMovieForm if active */}
       {activeMovieForm === position &&
         renderAddMovieForm(
           position,
@@ -124,6 +125,20 @@ const Movies = () => {
         {renderMovieCard(movie2, 2, "bg-green-600")}
         {renderMovieCard(movie3, 3, "bg-purple-600")}
       </div>
+
+      <button
+        onClick={() => setShowSeatBlocker(true)}
+        className="mt-8 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg shadow-lg transition duration-300"
+      >
+        Blocked Seats
+      </button>
+
+      {showSeatBlocker && (
+        <SeatBlocker
+          onClose={() => setShowSeatBlocker(false)}
+          backendUrl={backend_url}
+        />
+      )}
     </div>
   );
 };

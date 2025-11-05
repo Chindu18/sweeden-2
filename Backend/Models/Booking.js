@@ -38,6 +38,8 @@ const BookingSchema = new mongoose.Schema(
       enum: ["pending", "paid", "failed"],
       default: "pending",
     },
+    collectorChangedFrom: { type: String, default: "" },
+
 
     collectorType: { type: String, default: "" },
     collectorId: { type: String, default: "" },

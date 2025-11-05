@@ -34,168 +34,10 @@ const storage = new CloudinaryStorage({
 
 export const uploadMovieFiles = multer({ storage }).array("photos", 3);
 
-// ====================================================
-// ================= Booking Controllers ===============
-// ====================================================
 
-// ---------------- Add Booking ----------------
-
-// export const addBooking = async (req, res) => {
-//   try {
-//     const {
-//       name,
-//       email,
-//       date,
-//       timing,
-//       seatNumbers,
-//       movieName,
-//       kids,
-//       adult,
-//       totalAmount,
-//       paymentStatus,
-//       phone,
-//       totalSeatsSelected,
-//       ticketType,
-//       seatLayoutSets,
-//     } = req.body;
-
-//     if (!seatLayoutSets || !Array.isArray(seatLayoutSets)) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "Seat layout not provided" });
-//     }
-
-//     // 1️⃣ Get existing bookings for this show
-//     const existingBookings = await Booking.find({ date, timing });
-//     const bookedSeats = existingBookings.flatMap((b) => b.seatNumbers);
-
-//     // 2️⃣ Get blocked seats
-//     const blockedDocs = await Blockedseats.find();
-//     const blockedSeats = blockedDocs.flatMap((doc) => doc.blockedseats);
-
-//     const unavailableSeats = [...bookedSeats, ...blockedSeats];
-
-//     // 3️⃣ Check seat overlap
-//     // Normalize seatNumbers if they are objects
-// const selectedSeatNumbers = seatNumbers.map((s) =>
-//   typeof s === "object" ? s.seat : s
-// );
-
-// // Check overlap again properly
-// const overlap = selectedSeatNumbers.some((seat) =>
-//   unavailableSeats.includes(seat)
-// );
-
-// if (overlap) {
-//   return res.status(400).json({
-//     success: false,
-//     message: "❌ Booking failed — Some of your selected seats were just booked!",
-//   });
-// }
-
-
-//     // 4️⃣ Generate Booking ID
-//     const bookingId = "BKG-" + uuidv4().split("-")[0].toUpperCase();
-
-//     // 5️⃣ Build seatDetails with row mapping
-//     let seatCounter = 1;
-//     const seatDetails = [];
-//     seatLayoutSets.forEach((row, rowIndex) => {
-//       const totalSeatsInRow = row[0];
-//       for (let i = 0; i < totalSeatsInRow; i++) {
-//         if (seatNumbers.includes(seatCounter)) {
-//           seatDetails.push({ row: rowIndex + 1, seat: seatCounter });
-//         }
-//         seatCounter++;
-//       }
-//     });
-
-//     // 6️⃣ Generate QR
-//     const qrPayload = {
-//       bookingId,
-//       name,
-//       email,
-//       movieName,
-//       date,
-//       timing,
-//       seatDetails,
-//       totalAmount,
-//       paymentStatus,
-//       ticketType,
-//     };
-//     const qrDataUrl = await QRCode.toDataURL(JSON.stringify(qrPayload));
-//     const base64QR = qrDataUrl.split(",")[1];
-
-//     // 7️⃣ Save booking
-//     const booking = new Booking({
-//       bookingId,
-//       name,
-//       email,
-//       phone,
-//       date,
-//       timing,
-//       movieName,
-//       seatNumbers,
-//       seatDetails,
-//       kids,
-//       adult,
-//       totalAmount,
-//       totalSeatsSelected: totalSeatsSelected || selectedSeatNumbers.length,
-//       ticketType,
-//       paymentStatus,
-//     });
-//     await booking.save();
-
-//     // 8️⃣ Send email
-//     await resend.emails.send({
-//       from: "MovieZone <noreply@tamilmovie.no>",
-//       to: email,
-//       subject: `🎟️ Booking Confirmed — ${bookingId}`,
-//       html: `
-//         <div style="font-family: 'Segoe UI', Roboto, sans-serif; background-color: #f8f9fa; padding: 20px;">
-//           <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;">
-//             <div style="background-color: #e50914; padding: 15px 25px; text-align: center;">
-//               <h2 style="color: #fff; margin: 0;">🎬 MovieZone Booking Confirmed!</h2>
-//             </div>
-//             <div style="padding: 25px;">
-//               <p>Hi <strong>${name}</strong>,</p>
-//               <p>Your booking for <strong>${movieName}</strong> has been confirmed.</p>
-//               <div style="background: #f1f3f5; border-radius: 8px; padding: 15px 20px; margin: 20px 0;">
-//                 <p><strong>📅 Date:</strong> ${date}</p>
-//                 <p><strong>⏰ Time:</strong> ${timing}</p>
-//                 <p><strong>💺 Seats:</strong> ${seatNumbers.join(", ")}</p>
-//                 <p><strong>💰 Total:</strong> SEK ${totalAmount}</p>
-//                 <p><strong>🎟️ Ticket Type:</strong> ${ticketType}</p>
-//               </div>
-//               <div style="text-align: center; margin-top: 25px;">
-//                 <img src="cid:qrcode" alt="QR Code" style="width: 180px; border: 2px solid #eee; border-radius: 10px;" />
-//                 <p style="font-size: 14px; color: #777;">Scan this QR at the entrance</p>
-//               </div>
-//             </div>
-//           </div>
-//         </div>`,
-//       attachments: [{ filename: "qrcode.png", content: base64QR, content_id: "qrcode" }],
-//     });
-
-//     // ✅ 9️⃣ Respond
-//     return res.status(201).json({
-//       success: true,
-//       message: "Booking successful and email sent.",
-//       data: booking,
-//       bookingId,
-//       qrCode: qrDataUrl,
-//     });
-//   } catch (error) {
-//     console.error("❌ Booking error:", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "Booking failed — " + error.message,
-//     });
-//   }
-// };
 export const addBooking = async (req, res) => {
   try {
-    const {
+    let {
       name,
       email,
       date,
@@ -212,23 +54,51 @@ export const addBooking = async (req, res) => {
       seatLayoutSets,
     } = req.body;
 
-    if (!seatLayoutSets || !Array.isArray(seatLayoutSets)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Seat layout not provided" });
+    // 🧩 Step 1: Validate required fields
+    if (
+      !name ||
+      !email ||
+      !date ||
+      !timing ||
+      !seatNumbers ||
+      !movieName ||
+      !phone ||
+      !totalAmount ||
+      !ticketType ||
+      !seatLayoutSets
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "❌ All fields are required. Please fill every detail properly.",
+      });
     }
 
-    // 1️⃣ Fetch existing bookings for this show
+    // 🧩 Step 2: Validate seat layout format
+    if (!Array.isArray(seatLayoutSets)) {
+      return res.status(400).json({
+        success: false,
+        message: "❌ Seat layout format invalid.",
+      });
+    }
+
+    // 🧩 Step 3: Normalize ticketType ("video speed" → "videoSpeed")
+    const normalizedType = ticketType.toLowerCase().replace(/\s+/g, "");
+    if (normalizedType === "videospeed" || normalizedType === "video") {
+      ticketType = "videoSpeed";
+    } else {
+      ticketType = ticketType.trim();
+    }
+
+    // 🧩 Step 4: Fetch existing bookings
     const existingBookings = await Booking.find({ date, timing });
     const bookedSeats = existingBookings.flatMap((b) => b.seatNumbers);
 
-    // 2️⃣ Get blocked seats
+    // 🧩 Step 5: Get blocked seats
     const blockedDocs = await Blockedseats.find();
     const blockedSeats = blockedDocs.flatMap((doc) => doc.blockedseats);
-
     const unavailableSeats = [...bookedSeats, ...blockedSeats];
 
-    // 3️⃣ Normalize and check seat overlap
+    // 🧩 Step 6: Normalize selected seats
     const selectedSeatNumbers = seatNumbers.map((s) =>
       typeof s === "object" ? s.seat : s
     );
@@ -245,10 +115,10 @@ export const addBooking = async (req, res) => {
       });
     }
 
-    // 4️⃣ Generate booking ID
+    // 🧩 Step 7: Generate booking ID
     const bookingId = "BKG-" + uuidv4().split("-")[0].toUpperCase();
 
-    // 5️⃣ Map seat details
+    // 🧩 Step 8: Map seat details
     let seatCounter = 1;
     const seatDetails = [];
     seatLayoutSets.forEach((row, rowIndex) => {
@@ -261,12 +131,12 @@ export const addBooking = async (req, res) => {
       }
     });
 
-    // Format seat display for email
+    // 🧩 Step 9: Format seats for email
     const formattedSeats = seatNumbers
       .map((s) => `R${s.row}-S${s.seat}`)
       .join(", ");
 
-    // 6️⃣ Generate QR
+    // 🧩 Step 10: Generate QR Code
     const qrPayload = {
       bookingId,
       name,
@@ -280,8 +150,8 @@ export const addBooking = async (req, res) => {
     };
     const qrDataUrl = await QRCode.toDataURL(JSON.stringify(qrPayload));
     const base64QR = qrDataUrl.split(",")[1];
-
-    // 7️⃣ Save booking
+    const collectorChangedFrom =ticketType;
+    // 🧩 Step 11: Save booking
     const booking = new Booking({
       bookingId,
       name,
@@ -298,64 +168,80 @@ export const addBooking = async (req, res) => {
       totalSeatsSelected: totalSeatsSelected || selectedSeatNumbers.length,
       ticketType,
       paymentStatus,
+      collectorChangedFrom
     });
+
     await booking.save();
 
-    // 8️⃣ Send stylish confirmation email
+    // 🧩 Step 12: Send confirmation email
     await resend.emails.send({
       from: "MovieZone <noreply@tamilmovie.no>",
       to: email,
       subject: `🎬 Your MovieZone Booking Confirmation — ${bookingId}`,
-      html: `
-        <div style="font-family: 'Segoe UI', Roboto, sans-serif; background-color: #f5f6fa; padding: 20px;">
-          <div style="max-width: 620px; margin: auto; background: #ffffff; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); overflow: hidden;">
-            
-            <!-- Header -->
-            <div style="background-color: #e50914; padding: 20px; text-align: center;">
-              <h2 style="color: #fff; margin: 0;">🎟️ Your Ticket is Confirmed!</h2>
-              <p style="color: #ffd700; font-style: italic; margin-top: 5px;">“Lights, Camera, and pure Entertainment await!”</p>
-            </div>
+ html: `
+  <div style="font-family: 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f1f3f6; padding: 30px;">
+    <div style="max-width: 640px; margin: auto; background: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
 
-            <!-- Body -->
-            <div style="padding: 25px;">
-              <p>Hey <strong>${name}</strong>,</p>
-              <p>Thank you for choosing <strong>MovieZone</strong>! Your booking for <strong>${movieName}</strong> is successfully confirmed. Get ready for a cinematic experience!</p>
+      <!-- Header -->
+      <div style="background: linear-gradient(135deg, #0a1f44, #0078d7); padding: 22px 0; text-align: center;">
+        <h2 style="color: #ffffff; font-size: 22px; margin: 0; font-weight: 600; letter-spacing: 0.5px;">
+          Booking Confirmation
+        </h2>
+      </div>
 
-              <div style="background: #f9fafc; border-radius: 10px; padding: 15px 20px; margin: 20px 0;">
-                <p><strong>🎬 Movie:</strong> ${movieName}</p>
-                <p><strong>📅 Date:</strong> ${date}</p>
-                <p><strong>⏰ Time:</strong> ${timing}</p>
-                <p><strong>💺 Seats:</strong> ${formattedSeats}</p>
-                <p><strong>👨 Adults:</strong> ${adult || 0} &nbsp; | &nbsp; 👦 Kids: ${kids || 0}</p>
-                <p><strong>💰 Total Paid:</strong> SEK ${totalAmount}</p>
-                <p><strong>🎟️ Ticket Type:</strong> ${ticketType}</p>
-                <p><strong>📞 Contact:</strong> ${phone}</p>
-              </div>
+      <!-- Body -->
+      <div style="padding: 30px 35px; color: #111; line-height: 1.6;">
+        <p style="margin: 0 0 12px;">Hello <strong>${name}</strong>,</p>
+        <p style="margin: 0 0 20px;">
+          Your booking for the movie below has been successfully confirmed.  
+          Please review your details carefully before your showtime.
+        </p>
 
-              <div style="text-align: center; margin-top: 25px;">
-                <img src="cid:qrcode" alt="QR Code" style="width: 180px; border: 3px solid #eee; border-radius: 10px;" />
-                <p style="font-size: 14px; color: #555; margin-top: 8px;">Show this QR code at the theatre entrance</p>
-              </div>
-
-              <hr style="border: none; border-top: 1px dashed #ddd; margin: 25px 0;">
-
-              <div style="text-align: center;">
-                <p style="font-size: 13px; color: #777; margin-bottom: 10px;">🍿 “The best stories are told on the big screen — see you at the movies!”</p>
-                <p style="font-size: 12px; color: #999;">Booking ID: <strong>${bookingId}</strong></p>
-              </div>
-            </div>
-          </div>
+        <!-- Booking Details -->
+        <div style="background: #f9fafc; border: 1px solid #e4e6eb; border-radius: 8px; padding: 20px;">
+          <p><strong style="color:#0078d7;">Movie Name:</strong> ${movieName}</p>
+          <p><strong style="color:#0078d7;">Date:</strong> ${date}</p>
+          <p><strong style="color:#0078d7;">Time:</strong> ${timing}</p>
+          <p><strong style="color:#0078d7;">Seat Numbers:</strong> ${formattedSeats}</p>
+          <p><strong style="color:#0078d7;">Adults:</strong> ${adult || 0}</p>
+          <p><strong style="color:#0078d7;">Kids:</strong> ${kids || 0}</p>
+          <p><strong style="color:#0078d7;">Ticket Type:</strong> ${ticketType}</p>
+          <p><strong style="color:#0078d7;">Total Amount:</strong> SEK ${totalAmount}</p>
+          <p><strong style="color:#0078d7;">Phone:</strong> ${phone}</p>
         </div>
-      `,
+
+       
+
+        <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+
+        <p style="font-size: 13px; color: #222; text-align: center;">
+          <strong>Booking ID:</strong> ${bookingId}
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div style="background: #0a1f44; text-align: center; padding: 15px 0;">
+        <p style="color: #ffffff; font-size: 12px; margin: 0;">
+          © ${new Date().getFullYear()} MovieZone — All Rights Reserved
+        </p>
+      </div>
+
+    </div>
+  </div>
+`
+
+
+
+,
       attachments: [
         { filename: "qrcode.png", content: base64QR, content_id: "qrcode" },
       ],
     });
 
-    // ✅ Respond
+    // 🧩 Step 13: Final response
     return res.status(201).json({
       success: true,
-      message: "Booking successful and email sent.",
+      message: "✅ Booking successful and email sent!",
       data: booking,
       bookingId,
       qrCode: qrDataUrl,
@@ -364,10 +250,11 @@ export const addBooking = async (req, res) => {
     console.error("❌ Booking error:", error);
     return res.status(500).json({
       success: false,
-      message: "Booking failed — " + error.message,
+      message: "❌ Booking failed — " + error.message,
     });
   }
 };
+
 
 
 
@@ -377,11 +264,17 @@ export const getBookedSeats = async (req, res) => {
   const { date, timing } = req.query;
   try {
     const bookings = await Booking.find({ date, timing });
-    const bookedSeats = bookings.flatMap((b) => b.seatNumbers);
 
+    // Extract only seat numbers (not row objects)
+    const bookedSeats = bookings.flatMap((b) =>
+      b.seatNumbers.map((s) => s.seat)
+    );
+
+    // Include blocked seats
     const blockedDocs = await Blockedseats.find();
     const blockedSeats = blockedDocs.flatMap((doc) => doc.blockedseats);
 
+    // Merge both
     const unavailableSeats = [...bookedSeats, ...blockedSeats];
 
     res.json({
@@ -394,9 +287,6 @@ export const getBookedSeats = async (req, res) => {
   }
 };
 
-// ====================================================
-// ================= Movie Controllers =================
-// ====================================================
 
 // ---------------- Add Movie ----------------
 export const addMovie = async (req, res) => {

@@ -18,6 +18,11 @@ const Login = () => {
     // ✅ Hardcoded validation: username and password must equal "movie"
     if (username === "movie" && password === "movie") {
       sessionStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("isLoggedIn", "true");
+       localStorage.setItem(
+          "collectorType",
+         "Admin"
+        );
       toast.success("Login successful!");
       navigate("/dashboard");
     } else {

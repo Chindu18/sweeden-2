@@ -12,6 +12,7 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import MainMoviePage from "./pages/MainMoviePage";
 import BookTicket from "./components/BookTicket/BookTicket";
+import UserSnacksShop from "./components/snacksOrder/UserSnacksShop";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +36,8 @@ const App = () => {
 
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
-                <Route path="*" element={<NotFound />} />
+                <Route path="*" element={<MainMoviePage />} />
+                <Route path="/ordersnacks" element={<UserSnacksShop/>} />
               </Routes>
             </main>
             <Footer />

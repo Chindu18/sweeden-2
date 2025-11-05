@@ -28,26 +28,34 @@ const Collector = () => {
   const [loading, setLoading] = useState(true);
   const [grandTotal, setGrandTotal] = useState(0);
 
-  const [movie, setMovie] = useState<any>(null);
+  const [movies, setMovies] = useState<any[]>([]);
+  const [selectedMovie, setSelectedMovie] = useState<string>(""); // ✅ movie name selected by admin
+
   const backend_url = "http://localhost:8004";
 
-  // Fetch latest movie
+  // 🎬 Fetch all movies
   useEffect(() => {
-    const fetchMovie = async () => {
+    const fetchMovies = async () => {
       try {
-        const response = await axios.get(`${backend_url}/movie/getmovie`);
-        const data = response.data.data;
-        if (data && data.length > 0) setMovie(data[data.length - 1]);
+      const response = await axios.get(`${backend_url}/movie/getmovie`);
+const data = response.data.data;
+
+if (Array.isArray(data) && data.length > 0) {
+  const reversed = [...data].reverse(); // ✅ reverse order (latest first)
+  setMovies(reversed);
+  setSelectedMovie(reversed[0].title); // ✅ default: newest movie
+}
+
       } catch (err) {
         console.error(err);
       }
     };
-    fetchMovie();
+    fetchMovies();
   }, []);
 
-  // Fetch all collectors + their collection stats
+  // 👥 Fetch all collectors + their collection stats for selected movie
   useEffect(() => {
-    if (!movie) return;
+    if (!selectedMovie) return;
 
     const fetchCollectors = async () => {
       setLoading(true);
@@ -60,7 +68,7 @@ const Collector = () => {
             collectorsData.map(async (collector) => {
               try {
                 const statsRes = await axios.get(
-                  `${backend_url}/api/collector/${collector._id}?movieName=${encodeURIComponent(movie.title)}`
+                  `${backend_url}/api/collector/${collector._id}?movieName=${encodeURIComponent(selectedMovie)}`
                 );
                 const stats: CollectorStats[] = statsRes.data.data || [];
                 const totalCollected = stats.reduce((acc, item) => acc + item.totalAmount, 0);
@@ -88,9 +96,9 @@ const Collector = () => {
     };
 
     fetchCollectors();
-  }, [movie]);
+  }, [selectedMovie]); // ✅ re-fetch when movie changes
 
-  // Handle Allow/Block/Delete actions
+  // 🎛️ Handle Allow/Block/Delete actions
   const handleAccessChange = async (id: string, action: "allow" | "block" | "delete") => {
     try {
       if (action === "delete") {
@@ -115,15 +123,36 @@ const Collector = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-2">Total Collectors: {totalCollectors}</h1>
-      <div>
-        <CollectorManager/>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold mb-2 md:mb-0">
+          Total Collectors: {totalCollectors}
+        </h1>
+
+        {/* 🎬 Movie selector input */}
+        <div className="flex items-center gap-3">
+          <label htmlFor="movieSelect" className="font-semibold">Select Movie:</label>
+          <select
+            id="movieSelect"
+            value={selectedMovie}
+            onChange={(e) => setSelectedMovie(e.target.value)}
+            className="border rounded-lg px-3 py-2 text-black"
+          >
+            {movies.map((m) => (
+              <option key={m._id} value={m.title}>
+                {m.title}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
+      <CollectorManager />
+
       <h1 className="text-2xl font-bold mb-6 text-green-700">
-        Total Collection for "{movie?.title}": SEK{grandTotal}
+        Total Collection for "{selectedMovie}": SEK {grandTotal}
       </h1>
 
+      {/* 💰 Collectors list */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {collectors.map((collector) => (
           <div
@@ -141,7 +170,8 @@ const Collector = () => {
             <p><strong>Email:</strong> {collector.email}</p>
             <p><strong>Address:</strong> {collector.address}</p>
             <p><strong>Type:</strong> {collector.collectorType}</p>
-            <p><strong>Total Collected:</strong> SEK{collector.collectAmount || 0}</p>
+            <p><strong>Total Collected:</strong> SEK {collector.collectAmount || 0}</p>
+
             <p className="mt-2">
               <strong>Access:</strong>{" "}
               <span
@@ -157,7 +187,6 @@ const Collector = () => {
               </span>
             </p>
 
-            {/* Buttons */}
             <div className="flex justify-between mt-4">
               <button
                 onClick={() => handleAccessChange(collector._id, "allow")}

@@ -13,6 +13,8 @@ import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Revenue from "./pages/Revenue";
 import Collector from "./pages/Collector";
+import SnacksPicker from "./components/Snacks/SnacksPicker";
+import SnackRevenew from "../src/components/Snacks/SnackRevenew"
 
 const queryClient = new QueryClient();
 
@@ -63,6 +65,22 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Revenue/>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/snacks"
+            element={
+              <ProtectedRoute>
+                <SnacksPicker/>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/snacksrevenue"
+            element={
+              <ProtectedRoute>
+                 <SnackRevenew/>
               </ProtectedRoute>
             }
           />

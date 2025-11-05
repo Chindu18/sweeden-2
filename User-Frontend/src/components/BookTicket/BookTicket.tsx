@@ -598,58 +598,80 @@ const BookTicket: React.FC = () => {
   };
 
   // -------------------- Booking --------------------
-  const handleBooking = async () => {
-    if (!name || !email || selectedSeats.length !== totalSeatsSelected || !ticketType || !selectedShow || !Phone) {
-      toast({ title: "Missing Info", description: "Please fill all fields and select seats.", variant: "destructive" });
-      return;
-    }
+ const handleBooking = async () => {
+  if (
+    !name ||
+    !email ||
+    selectedSeats.length !== totalSeatsSelected ||
+    !ticketType ||
+    !selectedShow ||
+    !Phone
+  ) {
+    toast({
+      title: "Missing Info",
+      description: "Please fill all fields and select seats.",
+      variant: "destructive",
+    });
+    return;
+  }
 
-    const booking: BookingData & any = {
-      name,
-      email,
-      phone: Phone,
-      date: selectedShow.date,
-      timing: selectedShow.time,
-      movieName: movie.title,
-      seatNumbers: selectedSeats,
-      paymentStatus: "pending",
-      adult,
-      kids,
-      totalSeatsSelected, // ✅ fix: was using totalSeatsSelected.length
-      ticketType,
-      seatLayoutSets,
-      totalAmount: calculateTotal(),
-    };
+  // ✅ Auto-convert "video" → "video speed"
+  const finalTicketType = ticketType.toLowerCase() === "video" ? "video speed" : ticketType;
 
-    try {
-      const res = await axios.post(`${backend_url}/api/addBooking`, booking);
-      if (res.data.success) {
-        // Note: bookedSeats expects numbers; adapt if API returns differently
-        setBookedSeats([...bookedSeats]); // keep as-is to avoid mixing object types
-        const qrValue = res.data.qrCode;
-        setQr(String(qrValue));
-        setBookingData({
-          qrCode: res.data.qrCode,
-          bookingId: res.data.bookingId,
-          data: res.data.data,
-        });
-
-        setShowQRModal(true);
-        toast({ title: "Booking Successful!", description: "Your ticket has been booked." });
-
-        // Reset
-        setName("");
-        setEmail("");
-        setAdult(0);
-        setKids(0);
-        setTicketType("");
-        setSelectedSeats([]);
-        setPhone("");
-      }
-    } catch (err: any) {
-      toast({ title: "Booking Failed", description: err.response?.data?.message || "Something went wrong", variant: "destructive" });
-    }
+  const booking: BookingData & any = {
+    name,
+    email,
+    phone: Phone,
+    date: selectedShow.date,
+    timing: selectedShow.time,
+    movieName: movie.title,
+    seatNumbers: selectedSeats,
+    paymentStatus: "pending",
+    adult,
+    kids,
+    totalSeatsSelected,
+    ticketType: finalTicketType, // ✅ use updated type
+    seatLayoutSets,
+    totalAmount: calculateTotal(),
   };
+
+  try {
+    const res = await axios.post(`${backend_url}/api/addBooking`, booking);
+    if (res.data.success) {
+      setBookedSeats([...bookedSeats]);
+      const qrValue = res.data.qrCode;
+      setQr(String(qrValue));
+      setBookingData({
+        qrCode: res.data.qrCode,
+        bookingId: res.data.bookingId,
+        data: res.data.data,
+      });
+
+      setShowQRModal(true);
+      toast({
+        title: "Booking Successful!",
+        description: "Your ticket has been booked.",
+      });
+
+      // Reset form
+      setName("");
+      setEmail("");
+      setAdult(0);
+      setKids(0);
+      setTicketType("");
+      setSelectedSeats([]);
+      setPhone("");
+    }
+  } catch (err: any) {
+    toast({
+      title: "Booking Failed",
+      description:
+        err.response?.data?.message || "Something went wrong",
+      variant: "destructive",
+    });
+  }
+};
+
 
   // -------------------- OTP --------------------
   const sendOtp = async () => {
@@ -968,6 +990,7 @@ const BookTicket: React.FC = () => {
     </DialogFooter>
   </DialogContent>
 </Dialog>
+
 
 
     </div>

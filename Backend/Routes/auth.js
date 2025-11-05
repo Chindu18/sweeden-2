@@ -6,9 +6,24 @@ const authrouter = express.Router();
 
 // 🔹 REGISTER
 authrouter.post("/register", async (req, res) => {
-  const { username, password, phone, email, address, collectorType } = req.body;
-
   try {
+    let { username, password, phone, email, address, collectorType } = req.body;
+
+    // 🧩 Normalize collectorType
+    if (!collectorType) {
+      return res.status(400).json({ message: "Collector type is required" });
+    }
+
+    const type = collectorType.toLowerCase().replace(/\s+/g, ""); // remove spaces
+
+    // 🧩 Map to consistent format
+    if (type === "videospeed" || type === "video") {
+      collectorType = "videoSpeed";
+    } else {
+      collectorType = collectorType.trim(); // keep as is for other types
+    }
+
+    // 🧩 Validate required fields
     if (!username || !password || !phone || !email || !address || !collectorType) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -36,6 +51,7 @@ authrouter.post("/register", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // 🔹 LOGIN (no JWT)
 authrouter.post("/login", async (req, res) => {

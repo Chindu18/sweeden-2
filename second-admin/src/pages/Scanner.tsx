@@ -41,6 +41,7 @@ const Scanner = () => {
         const res = await axios.get(
           `${backend_url}/api/bookingid/${bookingData.bookingId}`
         );
+        console.log("Backend fetch successful:", res.data);
         fetchedData = res.data.data;
       } catch (err) {
         console.error("Backend fetch failed:", err);
@@ -147,7 +148,13 @@ const Scanner = () => {
                   ["Ticket Type", displayData.ticketType],
                   ["Adult", displayData.adult],
                   ["Kids", displayData.kids],
-                  ["Seats", displayData.seatNumbers?.join(", ")],
+                 [
+  "Seats",
+  displayData.seatNumbers
+    ?.map((s: { seat: number; row: number }) => `Row ${s.row} - Seat ${s.seat}`)
+    .join(", "),
+],
+
                   ["Total Seats", displayData.totalSeatsSelected],
                   ["Total Amount", `SEK ${displayData.totalAmount}`],
                 ].map(([label, value], i) => (

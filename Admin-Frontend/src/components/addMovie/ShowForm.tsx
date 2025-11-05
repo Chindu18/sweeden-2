@@ -85,7 +85,7 @@ export const ShowForm: React.FC<ShowFormProps> = ({
             />
             <input
               type="text"
-              placeholder="Kids Price"
+              placeholder="extra Price"
               value={show.prices[method].kids}
               onChange={e => onChange(index, "prices", "kids", idx, e.target.value)}
               className={inputClass}
@@ -120,7 +120,7 @@ export const ShowForm: React.FC<ShowFormProps> = ({
             />
             <input
               type="text"
-              placeholder="Kids Price"
+              placeholder="extra Price"
               value={collector.kids}
               onChange={e => onChange(index, "collectors", "kids", cIndex, e.target.value)}
               className={inputClass}
