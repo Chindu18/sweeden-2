@@ -31,7 +31,7 @@ async function sendMail(to, subject, html) {
 // ✅ Main job
 export function startAutoReminder() {
   // Runs every day at 9 AM (server time)
-  cron.schedule("21 16 * * *", async () => {
+  cron.schedule("56 10 * * *", async () => {
     console.log("⏰ Running auto email reminder job...");
 
     const today = new Date();

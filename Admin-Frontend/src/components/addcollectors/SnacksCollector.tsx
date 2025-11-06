@@ -152,7 +152,7 @@ const CombinedCollectorDashboard = () => {
             <h2 className="text-xl font-bold text-blue-700 mb-2">{c.username}</h2>
             <p><strong>Phone:</strong> {c.phone}</p>
             <p><strong>Email:</strong> {c.email}</p>
-            <p><strong>Movie Collection:</strong> SEK {c.collectAmount || 0}</p>
+           
             <p><strong>Snack Collection:</strong> SEK {c.snackAmount || 0}</p>
             <p className="mt-2 font-bold text-green-800">
               Grand Total: SEK {(c.collectAmount || 0) + (c.snackAmount || 0)}
@@ -183,9 +183,8 @@ const CombinedCollectorDashboard = () => {
     <table className="min-w-full bg-white rounded-xl shadow-md">
       <thead className="bg-orange-200 text-left">
         <tr>
-          <th className="px-4 py-2 border">Collector Name</th>
-          <th className="px-4 py-2 border">Email</th>
-          <th className="px-4 py-2 border">Phone</th>
+          <th className="px-4 py-2 border">Collector Id</th>
+        
           <th className="px-4 py-2 border">Snack Revenue</th>
         </tr>
       </thead>
@@ -204,9 +203,7 @@ const CombinedCollectorDashboard = () => {
 
           return (
             <tr key={c._id} className="border-b hover:bg-orange-50">
-              <td className="px-4 py-2 border">{c.username}</td>
-              <td className="px-4 py-2 border">{c.email}</td>
-              <td className="px-4 py-2 border">{c.phone}</td>
+              <td className="px-4 py-2 border">{c._id}</td>
               <td className="px-4 py-2 border">SEK {snack?.collectorRevenue || 0}</td>
             </tr>
           );
