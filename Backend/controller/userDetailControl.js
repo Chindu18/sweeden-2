@@ -9,7 +9,8 @@ import { v4 as uuidv4 } from "uuid";
 import MovieGroup from "../Models/currentMovie.js";
 import Blockedseats from "../Models/blocked.js";
 import auth from "../Models/users.js"
-
+import CampaignMail from "../Models/campaignmail.js"
+import CampaignStatus from "../Models/CampaignStatus.js"
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ============= Cloudinary Configuration =============
@@ -172,6 +173,17 @@ export const addBooking = async (req, res) => {
     });
 
     await booking.save();
+    // Save email to CampaignMail (skip if already exists)
+try {
+  await CampaignMail.updateOne(
+    { email: email }, // find by email
+    { email: email }, // set email
+    { upsert: true }  // insert if not exist
+  );
+} catch (err) {
+  console.error("❌ Failed to save email in CampaignMail:", err.message);
+}
+
 
     // 🧩 Step 12: Send confirmation email
     await resend.emails.send({
@@ -332,9 +344,43 @@ export const addMovie = async (req, res) => {
 
     const savedGroup = await movieGroup.save();
 
+    // ✅ Step: Check campaign status
+    const campaignStatus = await CampaignStatus.findOne();
+    if (campaignStatus?.notifyLeads) {
+      // ✅ Send email to all campaign subscribers
+      const allEmails = await CampaignMail.find().select("email -_id");
+      if (allEmails.length > 0) {
+        const emailList = allEmails.map((e) => e.email);
+
+        await resend.emails.send({
+          from: "MovieZone <noreply@tamilmovie.no>",
+          to: emailList,
+          subject: `New Movie Released: ${title} 🎬`,
+          html: `
+            <div style="font-family: 'Segoe UI', Roboto, Arial; padding: 20px; background-color: #f1f3f6;">
+              <div style="max-width: 600px; margin: auto; background: #fff; padding: 25px; border-radius: 10px; text-align: center;">
+                <h2 style="color: #0a1f44;">New Movie Alert!</h2>
+                <p style="font-size: 16px; color: #111;">Hello TamilFlim subscriber,</p>
+                <p style="font-size: 16px; color: #111;">
+                  We're excited to announce a new movie release: <strong>${title}</strong>.
+                </p>
+                <p style="margin-top: 20px;">
+                  <a href="https://yourwebsite.com/movies" style="padding: 10px 20px; background-color: #0078d7; color: #fff; border-radius: 6px; text-decoration: none;">
+                    Check it out
+                  </a>
+                </p>
+              </div>
+            </div>
+          `,
+        });
+      }
+    } else {
+      console.log("Campaign notification disabled, skipping emails.");
+    }
+
     res.status(201).json({
       success: true,
-      message: "Movie saved successfully",
+      message: "Movie saved successfully" + (campaignStatus?.notifyLeads ? " and campaign emails sent!" : "!"),
       data: { singleMovie: savedMovie, group: savedGroup },
     });
   } catch (error) {
@@ -342,6 +388,10 @@ export const addMovie = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
+
+
 
 // ---------------- Update Movie ----------------
 export const updatemovie = async (req, res) => {

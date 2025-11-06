@@ -15,6 +15,8 @@ import Revenue from "./pages/Revenue";
 import Collector from "./pages/Collector";
 import SnacksPicker from "./components/Snacks/SnacksPicker";
 import SnackRevenew from "../src/components/Snacks/SnackRevenew"
+import SnacksCollector from "../src/components/addcollectors/SnacksCollector"
+import CampaignToggle from "./components/campaignmail/CampaignToggle";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +86,23 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+            <Route
+            path="/snackscollectorrevenue"
+            element={
+              <ProtectedRoute>
+                 <SnacksCollector/>
+              </ProtectedRoute>
+            }
+          />
+            <Route
+            path="/Campaign"
+            element={
+              <ProtectedRoute>
+                 <CampaignToggle/>
+              </ProtectedRoute>
+            }
+          />
+
           {/* <Route path="*" element={<NotFound />} /> */}
         </Routes>
       </BrowserRouter>

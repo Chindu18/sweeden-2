@@ -4,6 +4,7 @@ const snackOrderSchema = new mongoose.Schema(
   {
     userName: { type: String, required: true, trim: true },
     userEmail: { type: String, required: true, trim: true },
+    bookingId: { type: String, required: true, trim: true },
     items: [
       {
         snackId: { type: mongoose.Schema.Types.ObjectId, ref: "Snack", required: true },
@@ -15,6 +16,8 @@ const snackOrderSchema = new mongoose.Schema(
     ],
     totalAmount: { type: Number, required: true },
     paymentStatus: { type: String, enum: ["pending", "paid"], default: "pending" },
+    collectorType: { type: String, default: "" },
+    collectorId: { type: String, default: "" },
   },
   { timestamps: true }
 );

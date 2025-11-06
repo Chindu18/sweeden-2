@@ -1,4 +1,26 @@
 import Snack from "../Models/snackModel.js";
+import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { v2 as cloudinary } from "cloudinary";
+
+// ☁️ Cloudinary Config
+cloudinary.config({
+  cloud_name: "dfom7glyl",
+  api_key: process.env.api_key,
+  api_secret: process.env.api_pass,
+});
+
+// 🍿 Snack Upload Setup
+const snackStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "snacks",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+  },
+});
+
+export const uploadSnackImage = multer({ storage: snackStorage }).single("img");
+
 
 // 📦 Get all snacks
 export const getSnacks = async (req, res) => {
@@ -14,7 +36,6 @@ export const getSnacks = async (req, res) => {
 export const addSnack = async (req, res) => {
   try {
     const { name, price, category } = req.body;
-    // Cloudinary uploads give req.file.path as secure URL automatically
     const img = req.file?.path || req.body.img;
 
     if (!name || !price || !category || !img) {

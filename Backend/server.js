@@ -25,15 +25,21 @@ import collectorRouter from './Routes/collector.js';
 import snackrouter from './Routes/snackRoutes.js';
 import orderRouter from './Routes/snackOrderRoutes.js';
 import { startAutoReminder,manualTriggerAutoReminder } from './middlewares/autoReminder.js';
+import campaignmail from './Models/campaignmail.js';
+import Campaignrouter from './Routes/campaignStatusRoute.js';
+import snackRevenuerouter from './Routes/snacksRevenue.js';
 
 // Serve the uploads folder inside movies
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads/movies')));
 app.use("/uploads", express.static("uploads"));
 
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-//for snacks add
+
+
+//for snacks add(admin)
 app.use('/snacks',snackrouter);
-app.use('/orderfood',orderRouter);
 
 // Mount main router
 app.use('/api', userRouter);
@@ -48,12 +54,16 @@ app.use('/seats',blockRouter)
 //colletors
 app.use('/collectors',collectorRouter)
 
+//campaignmails
+app.use('/campaignmail',Campaignrouter);
 
-app.use('/snacksorder', snackrouter);
+//front order
+app.use('/snacksorder', orderRouter);
 startAutoReminder();
 // Root test
 app.get("/", (req, res) => res.send("Backend server running"));
-
+//snacks revenue routes
+app.use('/snacks-revenue', snackRevenuerouter);
 // Connect DB
 database_connection();
 

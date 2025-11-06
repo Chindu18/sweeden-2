@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import CollectorManager from "@/components/addcollectors/CollectorManager";
+import { useNavigate } from "react-router-dom";
+
+
 
 interface CollectorStats {
   movieName: string;
@@ -23,29 +26,32 @@ interface CollectorType {
 }
 
 const Collector = () => {
+    const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate("/snackscollectorrevenue"); 
+  };
+  
   const [collectors, setCollectors] = useState<CollectorType[]>([]);
   const [totalCollectors, setTotalCollectors] = useState(0);
   const [loading, setLoading] = useState(true);
   const [grandTotal, setGrandTotal] = useState(0);
 
   const [movies, setMovies] = useState<any[]>([]);
-  const [selectedMovie, setSelectedMovie] = useState<string>(""); // ✅ movie name selected by admin
+  const [selectedMovie, setSelectedMovie] = useState<string>("");
 
   const backend_url = "http://localhost:8004";
 
-  // 🎬 Fetch all movies
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-      const response = await axios.get(`${backend_url}/movie/getmovie`);
-const data = response.data.data;
-
-if (Array.isArray(data) && data.length > 0) {
-  const reversed = [...data].reverse(); // ✅ reverse order (latest first)
-  setMovies(reversed);
-  setSelectedMovie(reversed[0].title); // ✅ default: newest movie
-}
-
+        const response = await axios.get(`${backend_url}/movie/getmovie`);
+        const data = response.data.data;
+        if (Array.isArray(data) && data.length > 0) {
+          const reversed = [...data].reverse();
+          setMovies(reversed);
+          setSelectedMovie(reversed[0].title);
+        }
       } catch (err) {
         console.error(err);
       }
@@ -53,7 +59,6 @@ if (Array.isArray(data) && data.length > 0) {
     fetchMovies();
   }, []);
 
-  // 👥 Fetch all collectors + their collection stats for selected movie
   useEffect(() => {
     if (!selectedMovie) return;
 
@@ -81,11 +86,7 @@ if (Array.isArray(data) && data.length > 0) {
 
           setCollectors(collectorsWithStats);
           setTotalCollectors(collectorsWithStats.length);
-
-          const total = collectorsWithStats.reduce(
-            (acc, c) => acc + (c.collectAmount || 0),
-            0
-          );
+          const total = collectorsWithStats.reduce((acc, c) => acc + (c.collectAmount || 0), 0);
           setGrandTotal(total);
         }
       } catch (err) {
@@ -96,9 +97,8 @@ if (Array.isArray(data) && data.length > 0) {
     };
 
     fetchCollectors();
-  }, [selectedMovie]); // ✅ re-fetch when movie changes
+  }, [selectedMovie]);
 
-  // 🎛️ Handle Allow/Block/Delete actions
   const handleAccessChange = async (id: string, action: "allow" | "block" | "delete") => {
     try {
       if (action === "delete") {
@@ -119,23 +119,26 @@ if (Array.isArray(data) && data.length > 0) {
     }
   };
 
-  if (loading) return <div className="p-6 text-center text-gray-600">Loading collectors...</div>;
+  if (loading)
+    return <div className="p-6 text-center text-gray-600">Loading collectors...</div>;
 
   return (
-    <div className="p-6">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold mb-2 md:mb-0">
+    <div className="p-6 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-3">
+        <h1 className="text-2xl font-bold text-indigo-700">
           Total Collectors: {totalCollectors}
         </h1>
 
-        {/* 🎬 Movie selector input */}
+       
+
         <div className="flex items-center gap-3">
-          <label htmlFor="movieSelect" className="font-semibold">Select Movie:</label>
+          <label htmlFor="movieSelect" className="font-semibold text-gray-700">Select Movie:</label>
           <select
             id="movieSelect"
             value={selectedMovie}
             onChange={(e) => setSelectedMovie(e.target.value)}
-            className="border rounded-lg px-3 py-2 text-black"
+            className="border rounded-lg px-3 py-2 text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
             {movies.map((m) => (
               <option key={m._id} value={m.title}>
@@ -144,28 +147,39 @@ if (Array.isArray(data) && data.length > 0) {
             ))}
           </select>
         </div>
+
+
+           <div
+      onClick={handleClick}
+      className="cursor-pointer px-5 py-3 bg-blue-500 text-white font-semibold rounded-xl shadow-md text-center 
+                 transform transition duration-300 hover:scale-105 hover:bg-blue-600"
+    >
+      Go for Snacks Revenue
+    </div>
       </div>
 
+      {/* Collector Manager */}
       <CollectorManager />
 
+      {/* Grand Total */}
       <h1 className="text-2xl font-bold mb-6 text-green-700">
         Total Collection for "{selectedMovie}": SEK {grandTotal}
       </h1>
 
-      {/* 💰 Collectors list */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Collectors List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {collectors.map((collector) => (
           <div
             key={collector._id}
-            className={`border shadow-lg rounded-xl p-5 transition-all hover:scale-105 ${
+            className={`p-5 rounded-3xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border ${
               collector.access === "allowed"
-                ? "border-green-500 bg-green-50"
+                ? "border-green-400 bg-green-50"
                 : collector.access === "denied"
-                ? "border-red-500 bg-red-50"
+                ? "border-red-400 bg-red-50"
                 : "border-gray-300 bg-white"
             }`}
           >
-            <h2 className="text-lg font-semibold mb-2">{collector.username}</h2>
+            <h2 className="text-lg font-bold text-indigo-600 mb-2">{collector.username}</h2>
             <p><strong>Phone:</strong> {collector.phone}</p>
             <p><strong>Email:</strong> {collector.email}</p>
             <p><strong>Address:</strong> {collector.address}</p>
@@ -175,7 +189,7 @@ if (Array.isArray(data) && data.length > 0) {
             <p className="mt-2">
               <strong>Access:</strong>{" "}
               <span
-                className={`px-2 py-1 rounded text-white ${
+                className={`px-2 py-1 rounded-full text-white font-semibold text-sm ${
                   collector.access === "allowed"
                     ? "bg-green-600"
                     : collector.access === "denied"
@@ -187,22 +201,22 @@ if (Array.isArray(data) && data.length > 0) {
               </span>
             </p>
 
-            <div className="flex justify-between mt-4">
+            <div className="flex justify-between mt-4 gap-2">
               <button
                 onClick={() => handleAccessChange(collector._id, "allow")}
-                className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                className="flex-1 px-3 py-2 bg-green-500 text-white rounded-xl hover:bg-green-600 transition transform hover:scale-105"
               >
                 Allow
               </button>
               <button
                 onClick={() => handleAccessChange(collector._id, "block")}
-                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                className="flex-1 px-3 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition transform hover:scale-105"
               >
                 Block
               </button>
               <button
                 onClick={() => handleAccessChange(collector._id, "delete")}
-                className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
+                className="flex-1 px-3 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition transform hover:scale-105"
               >
                 Delete
               </button>
