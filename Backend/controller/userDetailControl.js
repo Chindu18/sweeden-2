@@ -53,6 +53,7 @@ export const addBooking = async (req, res) => {
       totalSeatsSelected,
       ticketType,
       seatLayoutSets,
+      movieId
     } = req.body;
 
     // 🧩 Step 1: Validate required fields
@@ -119,6 +120,28 @@ export const addBooking = async (req, res) => {
     // 🧩 Step 7: Generate booking ID
     const bookingId = "BKG-" + uuidv4().split("-")[0].toUpperCase();
 
+     // Helper functions
+function formatDate(date) {
+  const d = new Date(date);
+  return d.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function formatTime(time) {
+  const [hour, minute] = time.split(":");
+  const date = new Date();
+  date.setHours(parseInt(hour), parseInt(minute));
+  return date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+
     // 🧩 Step 8: Map seat details
     let seatCounter = 1;
     const seatDetails = [];
@@ -148,6 +171,7 @@ export const addBooking = async (req, res) => {
       totalAmount,
       paymentStatus,
       ticketType,
+      
     };
     const qrDataUrl = await QRCode.toDataURL(JSON.stringify(qrPayload));
     const base64QR = qrDataUrl.split(",")[1];
@@ -169,7 +193,8 @@ export const addBooking = async (req, res) => {
       totalSeatsSelected: totalSeatsSelected || selectedSeatNumbers.length,
       ticketType,
       paymentStatus,
-      collectorChangedFrom
+      collectorChangedFrom,
+      movieId
     });
 
     await booking.save();
@@ -190,12 +215,14 @@ try {
       from: "MovieZone <noreply@tamilmovie.no>",
       to: email,
       subject: `🎬 Your MovieZone Booking Confirmation — ${bookingId}`,
- html: `
+
+// Example inside resend.emails.send()
+html: `
   <div style="font-family: 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f1f3f6; padding: 30px;">
     <div style="max-width: 640px; margin: auto; background: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
 
       <!-- Header -->
-      <div style="background: linear-gradient(135deg, #0a1f44, #0078d7); padding: 22px 0; text-align: center;">
+      <div style="background: linear-gradient(135deg, #007bff, #00c6ff, #00e0a8); padding: 22px 0; text-align: center;">
         <h2 style="color: #ffffff; font-size: 22px; margin: 0; font-weight: 600; letter-spacing: 0.5px;">
           Booking Confirmation
         </h2>
@@ -211,18 +238,24 @@ try {
 
         <!-- Booking Details -->
         <div style="background: #f9fafc; border: 1px solid #e4e6eb; border-radius: 8px; padding: 20px;">
-          <p><strong style="color:#0078d7;">Movie Name:</strong> ${movieName}</p>
-          <p><strong style="color:#0078d7;">Date:</strong> ${date}</p>
-          <p><strong style="color:#0078d7;">Time:</strong> ${timing}</p>
-          <p><strong style="color:#0078d7;">Seat Numbers:</strong> ${formattedSeats}</p>
-          <p><strong style="color:#0078d7;">Adults:</strong> ${adult || 0}</p>
-          <p><strong style="color:#0078d7;">Kids:</strong> ${kids || 0}</p>
-          <p><strong style="color:#0078d7;">Ticket Type:</strong> ${ticketType}</p>
-          <p><strong style="color:#0078d7;">Total Amount:</strong> SEK ${totalAmount}</p>
-          <p><strong style="color:#0078d7;">Phone:</strong> ${phone}</p>
+          <p><strong style="color:#0078d7;">🎬 Movie Name:</strong> ${movieName}</p>
+          <p><strong style="color:#0078d7;"> Date:</strong> ${formatDate(date)}</p>
+          <p><strong style="color:#0078d7;"> Time:</strong> ${formatTime(timing)}</p>
+          <p><strong style="color:#0078d7;"> PaymentStatus:</strong> ${paymentStatus}</p>
+          <p><strong style="color:#0078d7;"> Seat Numbers:</strong> ${formattedSeats}</p>
+          <p><strong style="color:#0078d7;"> Adults:</strong> ${adult || 0}</p>
+          <p><strong style="color:#0078d7;"> Extras:</strong> ${kids || 0}</p>
+          <p><strong style="color:#0078d7;"> Ticket Type:</strong> ${ticketType}</p>
+          <p><strong style="color:#0078d7;"> Total Amount:</strong> SEK ${totalAmount}</p>
+          <p><strong style="color:#0078d7;"> Phone:</strong> ${phone}</p>
         </div>
 
-       
+        <div style="text-align:center; margin-top:25px;">
+          <a href="http://localhost:8080/booking/${bookingId}/${email}/ordersnack"
+            style="display:inline-block; background:linear-gradient(135deg, #007bff, #00c6ff, #00e0a8); color:#fff; padding:12px 25px; border-radius:6px; text-decoration:none; font-weight:600;">
+            🍿 Order Snacks Now
+          </a>
+        </div>
 
         <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
 
@@ -241,6 +274,7 @@ try {
     </div>
   </div>
 `
+
 
 
 
@@ -301,6 +335,93 @@ export const getBookedSeats = async (req, res) => {
 
 
 // ---------------- Add Movie ----------------
+// export const addMovie = async (req, res) => {
+//   try {
+//     const {
+//       title,
+//       hero,
+//       heroine,
+//       villain,
+//       supportArtists,
+//       director,
+//       producer,
+//       musicDirector,
+//       cinematographer,
+//       showTimings,
+//       moviePosition,
+//       trailer,
+//     } = req.body;
+
+//     if (!req.files || req.files.length === 0)
+//       return res.status(400).json({ success: false, message: "Posters are required" });
+
+//     const uploadedPosters = req.files.map((file) => file.path);
+//     const shows = showTimings ? JSON.parse(showTimings) : [];
+
+//     const newMovie = new Movie({
+//       title,
+//       cast: { actor: hero, actress: heroine, villan: villain, supporting: supportArtists },
+//       crew: { director, producer, musicDirector, cinematographer },
+//       posters: uploadedPosters,
+//       trailer,
+//       shows,
+//     });
+
+//     const savedMovie = await newMovie.save();
+
+//     let movieGroup = (await MovieGroup.findOne()) || new MovieGroup();
+
+//     if (moviePosition === "1") movieGroup.movie1 = savedMovie._id;
+//     else if (moviePosition === "2") movieGroup.movie2 = savedMovie._id;
+//     else if (moviePosition === "3") movieGroup.movie3 = savedMovie._id;
+//     else return res.status(400).json({ success: false, message: "Invalid moviePosition" });
+
+//     const savedGroup = await movieGroup.save();
+
+//     // ✅ Step: Check campaign status
+//     const campaignStatus = await CampaignStatus.findOne();
+//     if (campaignStatus?.notifyLeads) {
+//       // ✅ Send email to all campaign subscribers
+//       const allEmails = await CampaignMail.find().select("email -_id");
+//       if (allEmails.length > 0) {
+//         const emailList = allEmails.map((e) => e.email);
+
+//         await resend.emails.send({
+//           from: "MovieZone <noreply@tamilmovie.no>",
+//           to: emailList,
+//           subject: `New Movie Released: ${title} 🎬`,
+//           html: `
+//             <div style="font-family: 'Segoe UI', Roboto, Arial; padding: 20px; background-color: #f1f3f6;">
+//               <div style="max-width: 600px; margin: auto; background: #fff; padding: 25px; border-radius: 10px; text-align: center;">
+//                 <h2 style="color: #0a1f44;">New Movie Alert!</h2>
+//                 <p style="font-size: 16px; color: #111;">Hello TamilFlim subscriber,</p>
+//                 <p style="font-size: 16px; color: #111;">
+//                   We're excited to announce a new movie release: <strong>${title}</strong>.
+//                 </p>
+//                 <p style="margin-top: 20px;">
+//                   <a href="https://yourwebsite.com/movies" style="padding: 10px 20px; background-color: #0078d7; color: #fff; border-radius: 6px; text-decoration: none;">
+//                     Check it out
+//                   </a>
+//                 </p>
+//               </div>
+//             </div>
+//           `,
+//         });
+//       }
+//     } else {
+//       console.log("Campaign notification disabled, skipping emails.");
+//     }
+
+//     res.status(201).json({
+//       success: true,
+//       message: "Movie saved successfully" + (campaignStatus?.notifyLeads ? " and campaign emails sent!" : "!"),
+//       data: { singleMovie: savedMovie, group: savedGroup },
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// };
 export const addMovie = async (req, res) => {
   try {
     const {
@@ -318,8 +439,9 @@ export const addMovie = async (req, res) => {
       trailer,
     } = req.body;
 
-    if (!req.files || req.files.length === 0)
+    if (!req.files || req.files.length === 0) {
       return res.status(400).json({ success: false, message: "Posters are required" });
+    }
 
     const uploadedPosters = req.files.map((file) => file.path);
     const shows = showTimings ? JSON.parse(showTimings) : [];
@@ -335,19 +457,26 @@ export const addMovie = async (req, res) => {
 
     const savedMovie = await newMovie.save();
 
-    let movieGroup = (await MovieGroup.findOne()) || new MovieGroup();
+    // ✅ Find or create movie group
+    let movieGroup = await MovieGroup.findOne();
+    if (!movieGroup) {
+      movieGroup = new MovieGroup();
+    }
 
+    // ✅ Support up to 5 movie positions
     if (moviePosition === "1") movieGroup.movie1 = savedMovie._id;
     else if (moviePosition === "2") movieGroup.movie2 = savedMovie._id;
     else if (moviePosition === "3") movieGroup.movie3 = savedMovie._id;
-    else return res.status(400).json({ success: false, message: "Invalid moviePosition" });
+    else if (moviePosition === "4") movieGroup.movie4 = savedMovie._id;
+    else if (moviePosition === "5") movieGroup.movie5 = savedMovie._id;
+    else
+      return res.status(400).json({ success: false, message: "Invalid moviePosition (must be 1–5)" });
 
     const savedGroup = await movieGroup.save();
 
-    // ✅ Step: Check campaign status
+    // ✅ Optional Campaign Email Notification
     const campaignStatus = await CampaignStatus.findOne();
     if (campaignStatus?.notifyLeads) {
-      // ✅ Send email to all campaign subscribers
       const allEmails = await CampaignMail.find().select("email -_id");
       if (allEmails.length > 0) {
         const emailList = allEmails.map((e) => e.email);
@@ -374,20 +503,21 @@ export const addMovie = async (req, res) => {
           `,
         });
       }
-    } else {
-      console.log("Campaign notification disabled, skipping emails.");
     }
 
     res.status(201).json({
       success: true,
-      message: "Movie saved successfully" + (campaignStatus?.notifyLeads ? " and campaign emails sent!" : "!"),
+      message: `Movie saved successfully (Position: ${moviePosition})${
+        campaignStatus?.notifyLeads ? " and campaign emails sent!" : "!"
+      }`,
       data: { singleMovie: savedMovie, group: savedGroup },
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error in addMovie:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 
 

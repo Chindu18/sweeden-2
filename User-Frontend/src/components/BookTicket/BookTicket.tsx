@@ -43,7 +43,8 @@ const formatDate = (dateString: string) => {
 
 const BookTicket: React.FC = () => {
   const { id } = useParams();
-
+  const [ids,setids]=useState(id)
+  console.log("movie id:",ids);
   // -------------------- State --------------------
   const [movie, setMovie] = useState<Movie>({
     title: "",
@@ -200,6 +201,7 @@ const BookTicket: React.FC = () => {
     ticketType: finalTicketType, // ✅ use updated type
     seatLayoutSets,
     totalAmount: calculateTotal(),
+    movieId:ids
   };
 
   try {
@@ -223,12 +225,12 @@ const BookTicket: React.FC = () => {
       });
 
       // Reset form
-      setName("");
+      
       
       setAdult(0);
       setKids(0);
       setTicketType("");
-      setSelectedSeats([]);
+      
       setPhone("");
     }
   } catch (err: any) {
@@ -312,9 +314,9 @@ const BookTicket: React.FC = () => {
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="text-center mb-12">
           <h1 className="text-6xl font-bold text-foreground mb-4">
-            Book Your Tickets for <span className="text-accent underline decoration-wavy">{movie.title}</span>
+            Book Your Tickets for <span className="text-[#0078f8] decoration-wavy">{movie.title}</span>
           </h1>
-          <div className="w-32 h-1 bg-accent mx-auto rounded-full"></div>
+          <div className="w-32 h-1 bg-gradient-to-r from-[#0072ff] to-[#00c6a7] text-white mx-auto rounded-full"></div>
           <p className="text-muted-foreground mt-4">Select your seats and complete your booking</p>
         </div>
 
@@ -322,7 +324,8 @@ const BookTicket: React.FC = () => {
           {/* Booking Form */}
           <div className="lg:col-span-2 space-y-6">
             <Card className="border-2 border-border shadow-xl">
-              <CardHeader className="bg-gradient-to-r from-accent to-accent/80 text-white">
+              {/* <CardHeader className="bg-gradient-to-r from-accent to-accent/80 text-white"> */}
+              <CardHeader className="bg-gradient-to-r from-[#0072ff] to-[#00c6a7] text-white">
                 <CardTitle className="text-3xl flex items-center gap-3">
                   <Ticket className="w-8 h-8" /> Booking Details
                 </CardTitle>
@@ -331,7 +334,7 @@ const BookTicket: React.FC = () => {
                 <TicketForm name={name} email={email} phone={Phone} setName={setName} setEmail={setEmail} setPhone={setPhone} />
                 <div>
                   <Label className="flex items-center gap-2 text-lg">
-                    <Film className="w-5 h-5 text-accent" /> Shows
+                    <Film className="w-5 h-5 text-[#00c7a9]" /> Shows
                   </Label>
                   <div>
                     {futureShows.map((show, index) => (
@@ -343,7 +346,7 @@ const BookTicket: React.FC = () => {
                           setSelectedTime(show.time);
                         }}
                         className={`m-2 px-6 py-3 rounded-lg border transition-all ${
-                          selectedShowId === index ? "bg-accent text-white" : "border-border hover:border-accent"
+                          selectedShowId === index ? "bg-[#00c7a9] text-white" : "border-border hover:border-[#00c7a9]"
                         }`}
                       >
                         <p className="font-semibold">{formatTime(show.time)}</p>
@@ -357,9 +360,9 @@ const BookTicket: React.FC = () => {
 
             {/* Payment Method */}
             <Card className="border-2 border-border shadow-xl">
-              <CardHeader className="bg-gradient-to-r from-secondary to-cinema-black text-white">
+              <CardHeader className="bg-gradient-to-r from-[#0072ff] to-[#00c6a7] text-white">
                 <CardTitle className="text-3xl flex items-center gap-3">
-                  <CreditCard className="w-8 h-8" /> Payment Method
+                  <CreditCard className="w-8 h-8 tracking-widest" /> Payment Method
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
@@ -371,7 +374,7 @@ const BookTicket: React.FC = () => {
                         openPaymentDialog("online");
                       }}
                       className={`px-6 py-3 rounded-lg font-semibold border-2 ${
-                        ticketType === "online" ? "bg-accent text-white" : "hover:border-accent"
+                        ticketType === "online" ? "bg-[#00c7a9] text-white" : "hover:border-[#00c7a9]"
                       }`}
                     >
                       Online Payment
@@ -382,7 +385,7 @@ const BookTicket: React.FC = () => {
                         openPaymentDialog("video");
                       }}
                       className={`px-6 py-3 rounded-lg font-semibold border-2 ${
-                        ticketType === "video" ? "bg-accent text-white" : "hover:border-accent"
+                        ticketType === "video" ? "bg-[#00c7a9] text-white" : "hover:border-[#00c7a9]"
                       }`}
                     >
                       Video Speed
@@ -395,7 +398,7 @@ const BookTicket: React.FC = () => {
                           openPaymentDialog(c.collectorName);
                         }}
                         className={`px-6 py-3 rounded-lg font-semibold border-2 ${
-                          ticketType === c.collectorName ? "bg-accent text-white" : "hover:border-accent"
+                          ticketType === c.collectorName ? "bg-[#00c7a9] text-white" : "hover:border-[#00c7a9]"
                         }`}
                       >
                         {c.collectorName}
@@ -415,7 +418,7 @@ const BookTicket: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex justify-between items-center">
-                      <Label>Kids (SEK{ticketPrice.kids})</Label>
+                      <Label>Extras (SEK{ticketPrice.kids})</Label>
                       <div className="flex items-center gap-2">
                         <button onClick={() => setKids(Math.max(kids - 1, 0))} className="px-3 py-1 bg-gray-200 rounded">-</button>
                         <span>{kids}</span>
@@ -424,7 +427,7 @@ const BookTicket: React.FC = () => {
                     </div>
                     <div className="flex justify-between items-center mt-4">
                       <span className="font-bold">Total Amount:</span>
-                      <span className="font-bold text-accent">SEK {calculateTotal()}</span>
+                      <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#0072ff] to-[#00c6a7]">SEK {calculateTotal()}</span>
                     </div>
                   </div>
                 )}
@@ -444,10 +447,10 @@ const BookTicket: React.FC = () => {
               />
               <Button
                 onClick={handleBooking}
-                className="w-full bg-accent text-white font-bold text-2xl py-6 rounded-xl mt-4"
+                className="w-full bg-gradient-to-r from-[#0072ff] to-[#00c6a7] text-white  font-bold text-2xl py-6 rounded-xl mt-4"
                 disabled={!otpVerified}
               >
-                Book Now ({movie.title})
+                Book Now
               </Button>
             </div>
           </div>
@@ -460,7 +463,7 @@ const BookTicket: React.FC = () => {
               </CardHeader>
               <CardContent className="p-6">
                 <div className="mb-8">
-                  <div className="bg-gradient-to-r from-transparent via-accent to-transparent h-1 rounded-full mb-3"></div>
+                  <div className="bg-gradient-to-r from-transparent via-[#0078f7] to-transparent h-1 rounded-full mb-3"></div>
                   <p className="text-center font-bold">THIS IS THE SCREEN</p>
                 </div>
                 <SeatLayout
@@ -561,26 +564,27 @@ const BookTicket: React.FC = () => {
   </DialogContent>
 </Dialog>
 
-{/* ✅ Show snack button only after booking confirmed */}
-{bookingData && (
-  <div className="flex flex-col items-center mt-6">
-    <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg mb-3 text-center shadow-sm">
-      🎉 <b>Booking Confirmed!</b><br />
-      Want to enjoy snacks during the movie? Click below 👇
-    </div>
-
+ {/* ✅ Show "Order Snacks" only after successful booking */}
+{bookingData?.bookingId && (
+  <div className="fixed bottom-6 right-6 flex flex-col items-center bg-white p-4 rounded-xl shadow-2xl border border-gray-200 animate-bounce">
+    <p className="text-gray-800 font-semibold mb-2 text-center">
+      🎉 Booking Successful!<br />Ready to order some snacks?
+    </p>
     <button
       onClick={handleOrderSnack}
-      className="bg-gradient-to-r from-blue-600 to-black hover:from-black hover:to-blue-600 text-white px-8 py-3 rounded-full text-lg font-semibold shadow-lg transition-all duration-300"
+      className="bg-gradient-to-r from-[#007bff] via-[#00c6ff] to-[#00e0a8] hover:opacity-90 text-white font-bold px-6 py-2 rounded-full shadow-lg transition-all"
     >
       🍿 Order Snacks
     </button>
   </div>
 )}
 
-
     </div>
   );
 };
 
 export default BookTicket;
+
+
+
+

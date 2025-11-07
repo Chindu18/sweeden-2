@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import axios from "axios";
+import { error } from "console";
 
 const Scanner = () => {
   const backend_url = "http://localhost:8004";
@@ -23,6 +24,30 @@ const Scanner = () => {
 
   const lastScanRef = useRef<string | null>(null);
   const scanLock = useRef(false);
+
+
+
+  // ✅ Format date and time nicely
+// Format date
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+// Format time
+const formatTime = (timeStr: string) => {
+  const date = new Date(`1970-01-01T${timeStr}`); // just time part
+  return date.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
+
 
   // ✅ Handle QR scan
   const handleScan = async (decodedText: string) => {
@@ -143,11 +168,11 @@ const Scanner = () => {
                   ["Name", displayData.name],
                   ["Email", displayData.email],
                   ["Movie", displayData.movieName],
-                  ["Date", new Date(displayData.date).toLocaleDateString()],
-                  ["Timing", displayData.timing],
+                  ["Date", formatDate(displayData.date)],
+                  ["Time", formatTime(displayData.timing)],
                   ["Ticket Type", displayData.ticketType],
                   ["Adult", displayData.adult],
-                  ["Kids", displayData.kids],
+                  ["Extras", displayData.kids],
                  [
   "Seats",
   displayData.seatNumbers
@@ -278,13 +303,13 @@ const Scanner = () => {
               </div>
 
               <div className="p-2 bg-white rounded-lg border border-gray-200">
-                <p className="text-xs text-gray-500">Current Kids Price</p>
+                <p className="text-xs text-gray-500">Current extras Price</p>
                 <p className="font-semibold">
                   SEK {previewData?.preview?.currentKidsPrice}
                 </p>
               </div>
               <div className="p-2 bg-white rounded-lg border border-gray-200">
-                <p className="text-xs text-gray-500">New Kids Price</p>
+                <p className="text-xs text-gray-500">New extras Price</p>
                 <p className="font-semibold text-yellow-700">
                   SEK {previewData?.preview?.newKidsPrice}
                 </p>
@@ -322,6 +347,7 @@ const Scanner = () => {
                     setShowPreview(false);
                   } catch {
                     toast.error("Failed to change collector!");
+                   
                   }
                 }}
               >

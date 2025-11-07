@@ -340,68 +340,128 @@ const Dashboard = () => {
             </div>
 
             {/* Table */}
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Booking ID</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Seats</TableHead>
-                    <TableHead>Show</TableHead>
-                    
-                    <TableHead>Choosen Method</TableHead>
-                    <TableHead>Paid Method</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                    <TableHead className="text-center">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {bookings.map((b, i) => (
-                    <TableRow key={b.bookingId}>
-                      <TableCell>{b.bookingId}</TableCell>
-                      <TableCell>{b.name}</TableCell>
-                      <TableCell>{b.email}</TableCell>
-                     <TableCell>
-  {b.seatNumbers.map((s: any) => `R${s.row}-S${s.seat}`).join(", ")}
-</TableCell>
+         {/* Table */}
+<div className="overflow-x-auto">
+  <Table className="hidden lg:table">
+    {/* ✅ Desktop View */}
+    <TableHeader>
+      <TableRow>
+        <TableHead>Booking ID</TableHead>
+        <TableHead>Name</TableHead>
+        <TableHead>Email</TableHead>
+        <TableHead>Seats</TableHead>
+        <TableHead>Show</TableHead>
+        <TableHead>Chosen Method</TableHead>
+        <TableHead>Paid Method</TableHead>
+        <TableHead className="text-right">Amount</TableHead>
+        <TableHead className="text-center">Status</TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      {bookings.map((b, i) => (
+        <TableRow key={b.bookingId}>
+          <TableCell>{b.bookingId}</TableCell>
+          <TableCell>{b.name}</TableCell>
+          <TableCell>{b.email}</TableCell>
+          <TableCell>
+            {b.seatNumbers.map((s: any) => `R${s.row}-S${s.seat}`).join(", ")}
+          </TableCell>
+          <TableCell>
+            {formatDate(b.date)} <br />
+            <span className="text-sm text-muted-foreground">
+              {formatTime(b.timing)}
+            </span>
+          </TableCell>
+          <TableCell>{b.collectorChangedFrom}</TableCell>
+          <TableCell>{b.collectorType}</TableCell>
+          <TableCell className="text-right font-semibold">
+            SEK {b.totalAmount}
+          </TableCell>
+          <TableCell className="text-center">
+            <button
+              onClick={() => {
+                if (b.paymentStatus.toLowerCase() === "pending") {
+                  setPendingToggleIndex(i);
+                  setShowModal(true);
+                }
+              }}
+              disabled={b.paymentStatus.toLowerCase() === "paid"}
+              className={`px-3 py-1 rounded text-white ${
+                b.paymentStatus.toLowerCase() === "paid"
+                  ? "bg-green-500"
+                  : "bg-orange-500"
+              }`}
+            >
+              {b.paymentStatus}
+            </button>
+          </TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
 
-                      <TableCell>
-                        {formatDate(b.date)} <br />
-                        <span className="text-sm text-muted-foreground">
-                          {formatTime(b.timing)}
-                        </span>
-                      </TableCell>
-                     
-                      <TableCell>{b.collectorChangedFrom}</TableCell>
-                      <TableCell>{b.ticketType}</TableCell>
-                      <TableCell className="text-right font-semibold">
-                        SEK {" "}
-                        {b.totalAmount}
-                      </TableCell>
-                       <TableCell className="text-center">
-                        <button
-                          onClick={() => {
-                            if (b.paymentStatus.toLowerCase() === "pending") {
-                              setPendingToggleIndex(i);
-                              setShowModal(true);
-                            }
-                          }}
-                          disabled={b.paymentStatus.toLowerCase() === "paid"}
-                          className={`px-3 py-1 rounded text-white ${
-                            b.paymentStatus.toLowerCase() === "paid"
-                              ? "bg-green-500"
-                              : "bg-orange-500"
-                          }`}
-                        >
-                          {b.paymentStatus}
-                        </button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+  {/* ✅ Mobile & Tablet View */}
+  <div className="block lg:hidden space-y-4">
+    {bookings.map((b, i) => {
+      const isOpen = openIndex === i;
+      return (
+        <div
+          key={b.bookingId}
+          className="border rounded-lg p-4 shadow-sm bg-white"
+        >
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="font-semibold">{b.bookingId}</p>
+              <p className="text-sm text-gray-600">
+                Payment: {b.ticketType}
+              </p>
             </div>
+            <button
+              onClick={() => setOpenIndex(isOpen ? null : i)}
+              className="text-blue-600 text-sm font-medium"
+            >
+              {isOpen ? "Hide Details" : "Show Details"}
+            </button>
+          </div>
+
+          {isOpen && (
+            <div className="mt-3 text-sm space-y-1">
+              <p><strong>Name:</strong> {b.name}</p>
+              <p><strong>Email:</strong> {b.email}</p>
+              <p><strong>Seats:</strong> {b.seatNumbers.map((s: any) => `R${s.row}-S${s.seat}`).join(", ")}</p>
+              <p>
+                <strong>Show:</strong> {formatDate(b.date)} at {formatTime(b.timing)}
+              </p>
+              <p><strong>Chosen Method:</strong> {b.collectorChangedFrom}</p>
+              <p><strong>Amount:</strong> SEK {b.totalAmount}</p>
+              <p>
+                <strong>Status:</strong>{" "}
+                <button
+                  onClick={() => {
+                    if (b.paymentStatus.toLowerCase() === "pending") {
+                      setPendingToggleIndex(i);
+                      setShowModal(true);
+                    }
+                  }}
+                  disabled={b.paymentStatus.toLowerCase() === "paid"}
+                  className={`px-3 py-1 rounded text-white ${
+                    b.paymentStatus.toLowerCase() === "paid"
+                      ? "bg-green-500"
+                      : "bg-orange-500"
+                  }`}
+                >
+                  {b.paymentStatus}
+                </button>
+              </p>
+            </div>
+          )}
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+
           </CardContent>
         </Card>
 

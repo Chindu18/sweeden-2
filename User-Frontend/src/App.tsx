@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import MainMoviePage from "./pages/MainMoviePage";
 import BookTicket from "./components/BookTicket/BookTicket";
 import UserSnacksShop from "./components/snacksOrder/UserSnacksShop";
+import Hero from "./components/components/Hero";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => {
             <main className="flex-1">
               <Routes>
                 <Route path="/" element={<MainMoviePage />} />
+                <Route path="/hero" element={<Hero />}/>
                 <Route path="/movie/:title/:id" element={<Movies />} />
                 <Route path="/book-ticket/:id" element={<BookTicket />} />
                 <Route path="/about" element={<About />} />

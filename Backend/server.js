@@ -33,7 +33,8 @@ import snackRevenuerouter from './Routes/snacksRevenue.js';
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads/movies')));
 app.use("/uploads", express.static("uploads"));
 
-app.use(express.json({ limit: "10mb" }));
+
+app.use(express.json())
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 

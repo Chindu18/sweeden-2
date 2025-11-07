@@ -29,11 +29,11 @@ const OTPVerification: React.FC<Props> = ({ email, otp, setOtp, otpSent, otpVeri
       />
 
       <div className="flex gap-3">
-        <Button onClick={sendOtp} className="bg-accent text-white flex-1">
+        <Button onClick={sendOtp} className="bg-gradient-to-r from-[#0072ff] to-[#0072ff] text-white flex-1">
           {otpSent ? "Resent OTP" : "Send OTP"}
         </Button>
 
-        <Button onClick={verifyOtp} className="bg-green-600 text-white flex-1" disabled={!otpSent || otpVerified || otp.length !== 6}>
+        <Button onClick={verifyOtp} className="bg-gradient-to-r from-[#00c6a7] to-[#00c6a7]  text-white flex-1" disabled={!otpSent || otpVerified || otp.length !== 6}>
           {otpVerified ? "Verified" : "Verify OTP"}
         </Button>
       </div>

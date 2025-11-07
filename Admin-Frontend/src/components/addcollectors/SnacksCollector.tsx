@@ -29,11 +29,17 @@ interface SnackRevenue {
 
 const CombinedCollectorDashboard = () => {
   const [collectors, setCollectors] = useState<CollectorType[]>([]);
+  const [filteredCollectors, setFilteredCollectors] = useState<CollectorType[]>([]);
   const [movies, setMovies] = useState<any[]>([]);
   const [selectedMovie, setSelectedMovie] = useState("");
   const [loading, setLoading] = useState(true);
   const [totalSnackRevenue, setTotalSnackRevenue] = useState(0);
   const [snackRevenues, setSnackRevenues] = useState<SnackRevenue[]>([]);
+
+  // Filter states
+  const [filterName, setFilterName] = useState("");
+  const [filterCollectorId, setFilterCollectorId] = useState("");
+  const [filterAccess, setFilterAccess] = useState("");
 
   const backend = "http://localhost:8004";
 
@@ -43,6 +49,8 @@ const CombinedCollectorDashboard = () => {
       try {
         const res = await axios.get(`${backend}/movie/getmovie`);
         const data = res.data.data || [];
+        // Sort movies by latest first
+        data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         setMovies(data);
         if (data.length > 0) setSelectedMovie(data[0].title);
       } catch (err) {
@@ -95,6 +103,7 @@ const CombinedCollectorDashboard = () => {
         });
 
         setCollectors(combined);
+        setFilteredCollectors(combined);
       } catch (err) {
         console.error(err);
         toast.error("Failed to fetch collectors");
@@ -106,6 +115,26 @@ const CombinedCollectorDashboard = () => {
     fetchData();
   }, [selectedMovie]);
 
+  // Apply filters
+  useEffect(() => {
+    let filtered = [...collectors];
+
+    if (filterName)
+      filtered = filtered.filter((c) =>
+        c.username.toLowerCase().includes(filterName.toLowerCase())
+      );
+    if (filterCollectorId)
+      filtered = filtered.filter((c) =>
+        c._id.toLowerCase().includes(filterCollectorId.toLowerCase())
+      );
+    if (filterAccess)
+      filtered = filtered.filter((c) =>
+        c.access?.toLowerCase() === filterAccess.toLowerCase()
+      );
+
+    setFilteredCollectors(filtered);
+  }, [filterName, filterCollectorId, filterAccess, collectors]);
+
   if (loading) return <div className="p-6 text-center">Loading collectors...</div>;
 
   return (
@@ -115,7 +144,7 @@ const CombinedCollectorDashboard = () => {
       {/* Total Summary */}
       <div className="mb-6 p-4 bg-white rounded-xl shadow-md flex flex-col md:flex-row justify-between items-center">
         <p className="text-xl font-bold text-indigo-700">
-          Total Collectors: {collectors.length}
+          Total Collectors: {filteredCollectors.length}
         </p>
         <p className="text-xl font-bold text-green-700">
           Total Snack Revenue: SEK {totalSnackRevenue}
@@ -136,9 +165,37 @@ const CombinedCollectorDashboard = () => {
         </select>
       </div>
 
+      {/* Filters */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Filter by Name"
+          className="p-2 border rounded"
+          value={filterName}
+          onChange={(e) => setFilterName(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Filter by Collector ID"
+          className="p-2 border rounded"
+          value={filterCollectorId}
+          onChange={(e) => setFilterCollectorId(e.target.value)}
+        />
+        <select
+          value={filterAccess}
+          onChange={(e) => setFilterAccess(e.target.value)}
+          className="p-2 border rounded"
+        >
+          <option value="">All Access</option>
+          <option value="allowed">Allowed</option>
+          <option value="denied">Denied</option>
+          <option value="pending">Pending</option>
+        </select>
+      </div>
+
       {/* Collector Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-        {collectors.map((c) => (
+        {filteredCollectors.map((c) => (
           <div
             key={c._id}
             className={`p-5 rounded-2xl shadow-lg border ${
@@ -152,7 +209,6 @@ const CombinedCollectorDashboard = () => {
             <h2 className="text-xl font-bold text-blue-700 mb-2">{c.username}</h2>
             <p><strong>Phone:</strong> {c.phone}</p>
             <p><strong>Email:</strong> {c.email}</p>
-           
             <p><strong>Snack Collection:</strong> SEK {c.snackAmount || 0}</p>
             <p className="mt-2 font-bold text-green-800">
               Grand Total: SEK {(c.collectAmount || 0) + (c.snackAmount || 0)}
@@ -175,45 +231,38 @@ const CombinedCollectorDashboard = () => {
         ))}
       </div>
 
-   {/* Snack Revenue Table at Bottom */}
-<div className="p-6 bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 rounded-xl shadow-md mt-10">
-  <h2 className="text-2xl font-bold mb-4 text-orange-700">🍿 Snack Revenue Table</h2>
-
-  <div className="overflow-x-auto">
-    <table className="min-w-full bg-white rounded-xl shadow-md">
-      <thead className="bg-orange-200 text-left">
-        <tr>
-          <th className="px-4 py-2 border">Collector Id</th>
-        
-          <th className="px-4 py-2 border">Snack Revenue</th>
-        </tr>
-      </thead>
-      <tbody>
-        {collectors.length === 0 && (
-          <tr>
-            <td colSpan={4} className="text-center py-4 text-gray-600">
-              No collector data found.
-            </td>
-          </tr>
-        )}
-        {collectors.map((c) => {
-          // Find corresponding snack revenue by collector _id
-         const snack = snackRevenues.find((s) => s._id === c._id);
-
-
-          return (
-            <tr key={c._id} className="border-b hover:bg-orange-50">
-              <td className="px-4 py-2 border">{c._id}</td>
-              <td className="px-4 py-2 border">SEK {snack?.collectorRevenue || 0}</td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  </div>
-</div>
-
-
+      {/* Snack Revenue Table */}
+      <div className="p-6 bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 rounded-xl shadow-md mt-10">
+        <h2 className="text-2xl font-bold mb-4 text-orange-700">🍿 Snack Revenue Table</h2>
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white rounded-xl shadow-md">
+            <thead className="bg-orange-200 text-left">
+              <tr>
+                <th className="px-4 py-2 border">Collector Id</th>
+                <th className="px-4 py-2 border">Snack Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCollectors.length === 0 && (
+                <tr>
+                  <td colSpan={2} className="text-center py-4 text-gray-600">
+                    No collector data found.
+                  </td>
+                </tr>
+              )}
+              {filteredCollectors.map((c) => {
+                const snack = snackRevenues.find((s) => s._id === c._id);
+                return (
+                  <tr key={c._id} className="border-b hover:bg-orange-50">
+                    <td className="px-4 py-2 border">{c._id}</td>
+                    <td className="px-4 py-2 border">SEK {snack?.collectorRevenue || 0}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };

@@ -115,13 +115,7 @@ const SeatLayout: React.FC<Props> = ({
   return (
     <div className="flex flex-col items-center gap-4 w-full">
       {/* Screen Indicator */}
-      <div className="mb-8 text-center">
-        <div className="bg-gradient-to-r from-transparent via-blue-500 to-transparent h-1 rounded-full mb-2 shadow-lg" />
-        <p className="text-sm sm:text-base font-semibold text-gray-300">
-          SCREEN THIS SIDE
-        </p>
-      </div>
-
+      
       {/* Scrollable Seat Layout */}
       <div className="w-full overflow-x-auto">
         <div className="inline-flex flex-col items-center gap-3 px-4 min-w-max">

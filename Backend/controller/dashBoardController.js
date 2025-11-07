@@ -138,6 +138,7 @@ export const updatePaymentStatus = async (req, res) => {
 
             <div style="padding: 25px;">
               <p style="font-size: 16px; color: #333;">Hi <strong>${booking.name}</strong>,</p>
+               <p style="font-size: 16px; color: #333;"> booking id <strong>${booking.id}</strong>,</p>
               <p style="color: #555;">We’ve received your payment for <strong>${booking.movieName}</strong>. Here are your booking details:</p>
 
               <div style="background-color: #f2f8ff; padding: 15px 20px; border-radius: 8px; margin: 15px 0; color: #333;">
@@ -153,7 +154,7 @@ export const updatePaymentStatus = async (req, res) => {
                 }</p>
                 <p><strong>💰 Total:</strong> SEK ${booking.totalAmount}</p>
                 <p><strong>💳 Payment Mode:</strong> ${booking.ticketType}</p>
-                <p><strong>👤 Colected By:</strong> Admin </p>
+                <p><strong>👤 Colected By:</strong> ${collectorType} </p>
                 <p><strong>✅ Status:</strong> Paid</p>
               </div>
 
@@ -334,7 +335,7 @@ export const getBookingById = async (req, res) => {
    
     res.json({
       success: true,
-      message: "Booking fetched and QR sent to email successfully",
+      message: "Booking fetched",
       data: booking,
     });
 
@@ -346,3 +347,6 @@ export const getBookingById = async (req, res) => {
     });
   }
 };
+
+
+

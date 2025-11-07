@@ -9,7 +9,7 @@ const Navbar = () => {
 
   const navItems = [
     { name: "Movies", path: "/" },
-    { name: "Book Ticket", path: "/book-ticket" },
+   
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" },
   ];
@@ -21,7 +21,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/dashboard" className="flex items-center gap-2 group">
+          <Link to="/" className="flex items-center gap-2 group">
             <div className="p-2  group-hover:scale-105 transition-transform">
               <Film className="h-6 w-6 text-white" />
             </div>

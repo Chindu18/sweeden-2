@@ -18,6 +18,9 @@ const snackOrderSchema = new mongoose.Schema(
     paymentStatus: { type: String, enum: ["pending", "paid"], default: "pending" },
     collectorType: { type: String, default: "" },
     collectorId: { type: String, default: "" },
+    movieName: { type: String, default: "" },
+    showdate: { type: String, default: "" },
+    showTime: { type: String, default: "" }
   },
   { timestamps: true }
 );

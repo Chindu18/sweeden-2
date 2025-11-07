@@ -11,7 +11,7 @@ interface Movie {
   posters: string[];
 }
 
-// 🎟️ Realistic Ticket Card
+// 🎟️ Movie Card
 const MovieCard = ({ movie }: { movie: Movie }) => {
   const navigate = useNavigate();
 
@@ -32,7 +32,7 @@ const MovieCard = ({ movie }: { movie: Movie }) => {
         ))}
       </div>
 
-      {/* Poster Section */}
+      {/* Poster */}
       <div className="relative w-full h-64 overflow-hidden">
         <img
           src={movie.posters[0] || moviePosterFallback}
@@ -45,10 +45,10 @@ const MovieCard = ({ movie }: { movie: Movie }) => {
         </div>
       </div>
 
-      {/* Dotted perforation divider */}
+      {/* Divider */}
       <div className="border-t border-dashed border-gray-500 my-2"></div>
 
-      {/* Ticket Info */}
+      {/* Info */}
       <div className="px-6 py-4 text-center">
         <h3 className="text-3xl font-extrabold tracking-wide uppercase text-red-400 drop-shadow-[0_0_10px_rgba(255,75,75,0.4)]">
           {movie.title}
@@ -69,7 +69,6 @@ const MovieCard = ({ movie }: { movie: Movie }) => {
         </div>
       </div>
 
-      {/* Ticket Frame Glow */}
       <div className="absolute inset-0 rounded-[2rem] ring-1 ring-red-500/20"></div>
     </div>
   );
@@ -77,18 +76,22 @@ const MovieCard = ({ movie }: { movie: Movie }) => {
 
 const MainMoviePage = () => {
   const backend_url = "http://localhost:8004";
-  const [movie1, setMovie1] = useState<Movie | null>(null);
-  const [movie2, setMovie2] = useState<Movie | null>(null);
-  const [movie3, setMovie3] = useState<Movie | null>(null);
+  const [movies, setMovies] = useState<Movie[]>([]);
 
   const fetchCurrentMovies = async () => {
     try {
       const res = await axios.get(`${backend_url}/movie/currentMovie`);
       const data = res.data.data[0];
       if (data) {
-        setMovie1(data.movie1);
-        setMovie2(data.movie2);
-        setMovie3(data.movie3);
+        // ✅ Collect all available movie slots
+        const allMovies = [
+          data.movie1,
+          data.movie2,
+          data.movie3,
+          data.movie4,
+          data.movie5,
+        ].filter(Boolean); // remove undefined/null
+        setMovies(allMovies);``
       }
     } catch (err) {
       console.error("Failed to fetch movies:", err);
@@ -105,13 +108,38 @@ const MainMoviePage = () => {
         🎟️ Now Showing
       </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 justify-center">
-        {movie1 && <MovieCard movie={movie1} />}
-        {movie2 && <MovieCard movie={movie2} />}
-        {movie3 && <MovieCard movie={movie3} />}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-10 justify-center">
+        {movies.length > 0 ? (
+          movies.map((m) => <MovieCard key={m._id} movie={m} />)
+        ) : (
+          <p className="text-center text-gray-400 col-span-full">
+            No movies currently showing.
+          </p>
+        )}
       </div>
     </div>
   );
 };
 
 export default MainMoviePage;
+
+
+
+
+// import React from 'react'
+// import { Footer } from 'react-day-picker'
+// import Index from './Index'
+
+// const MainMoviePage = () => {
+//   return (
+//     <div>
+//        <Index/>
+//     </div>
+//   )
+// }
+
+// export default MainMoviePage
+
+
+
+

@@ -14,7 +14,7 @@ const BookingSchema = new mongoose.Schema(
     date: { type: String, required: true },
     timing: { type: String, required: true },
     movieName: { type: String, required: true },
-
+    movieId: { type: String, required: true },
     seatNumbers: {
   type: [
     {

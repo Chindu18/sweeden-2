@@ -3,9 +3,9 @@ import SnackOrder from "../Models/snackOrderModel.js";
 
 export const placeSnackOrder = async (req, res) => {
   try {
-    const { userName, userEmail, bookingId, items, totalAmount } = req.body;
+    const { userName, userEmail, bookingId, items, totalAmount,movieName,showdate,showTime } = req.body;
 
-    if (!userName || !userEmail || !bookingId || !items?.length)
+    if (!userName || !userEmail || !bookingId || !items?.length || !totalAmount||!movieName||!showdate||!showTime)
       return res
         .status(400)
         .json({ success: false, message: "Missing required fields" });
@@ -16,6 +16,9 @@ export const placeSnackOrder = async (req, res) => {
       bookingId,
       items,
       totalAmount,
+      movieName,
+      showdate,
+      showTime
     });
 
     await order.save();

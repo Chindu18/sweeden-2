@@ -65,71 +65,90 @@ export const deleteCollector = async (req, res) => {
 import Movie from "../Models/Movies.js";
 
 
-
 export const changecollector = async (req, res) => {
   try {
-    const { bookingid, collector } = req.body; // e.g. collector = "online" | "videoSpeed" | "nike"
+    let { bookingid, collector } = req.body;
 
-    // 1️⃣ Find booking using bookingId (not _id)
+    // ✅ 1️⃣ Validate input
+    if (!bookingid || !collector) {
+      return res.status(400).json({ message: "Booking ID and collector are required" });
+    }
+
+    collector = collector.trim().toLowerCase();
+    if (collector === "video" || collector === "videospeed") collector = "videoSpeed"; // normalize
+
+    // ✅ 2️⃣ Fetch booking
     const booking = await Booking.findOne({ bookingId: bookingid });
-    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    if (!booking) {
+      return res.status(404).json({ message: `Booking with ID "${bookingid}" not found` });
+    }
 
-    // 🆕 Save old collector type before updating
     const previousCollector = booking.collectorType || "N/A";
 
-    // 2️⃣ Find movie by title
-    const movie = await Movie.findOne({ title: booking.movieName });
-    if (!movie) return res.status(404).json({ message: "Movie not found" });
+    // ✅ 3️⃣ Fetch movie strictly by movieId
+    if (!booking.movieId) {
+      return res.status(404).json({ message: "Movie ID missing in booking" });
+    }
 
-    // 3️⃣ Find the correct show (match date + time)
-    const show = movie.shows.find(
+    const movie = await Movie.findById(booking.movieId);
+    if (!movie) {
+      return res.status(404).json({ message: "Movie not found for this booking" });
+    }
+
+    // ✅ 4️⃣ Find the correct show
+    const show = movie.shows?.find(
       (s) =>
         new Date(s.date).toDateString() === new Date(booking.date).toDateString() &&
         s.time === booking.timing
     );
-    if (!show) return res.status(404).json({ message: "Show not found" });
 
-    // 4️⃣ Initialize variables
+    if (!show) {
+      return res.status(404).json({ message: "Show not found for this booking" });
+    }
+
+    // ✅ 5️⃣ Determine prices
     let adultPrice = 0;
     let kidsPrice = 0;
     let collectorType = "";
 
-    // 5️⃣ Detect type of collector
     if (collector === "online" || collector === "videoSpeed") {
-      // => From show.prices
-      adultPrice = show.prices[collector].adult;
-      kidsPrice = show.prices[collector].kids;
+      if (!show.prices?.[collector]) {
+        return res.status(400).json({ message: `Price info not found for "${collector}"` });
+      }
+      adultPrice = show.prices[collector]?.adult || 0;
+      kidsPrice = show.prices[collector]?.kids || 0;
       collectorType = collector;
     } else {
-      // => From show.collectors array
-      const foundCollector = show.collectors.find(
-        (c) => c.collectorName === collector
+      const foundCollector = show.collectors?.find(
+        (c) => c.collectorName.toLowerCase() === collector
       );
       if (!foundCollector) {
-        return res.status(404).json({ message: "Collector not found in this show" });
+        return res.status(404).json({ message: `Collector "${collector}" not found in this show` });
       }
-      adultPrice = foundCollector.adult;
-      kidsPrice = foundCollector.kids;
+      adultPrice = foundCollector.adult || 0;
+      kidsPrice = foundCollector.kids || 0;
       collectorType = foundCollector.collectorName;
     }
 
-    // 6️⃣ Recalculate total
-    const totalAmount = booking.adult * adultPrice + booking.kids * kidsPrice;
+    // ✅ 6️⃣ Calculate total safely
+    const totalAmount =
+      (Number(booking.adult) || 0) * adultPrice +
+      (Number(booking.kids) || 0) * kidsPrice;
 
-    // 7️⃣ Update booking fields
-    booking.collectorChangedFrom = previousCollector; // ✅ Store old collector
+    // ✅ 7️⃣ Update booking
+    booking.collectorChangedFrom = previousCollector;
     booking.collectorType = collectorType;
     booking.ticketType = collectorType;
     booking.totalAmount = totalAmount;
 
     await booking.save();
 
-    // 8️⃣ Send back updated details
+    // ✅ 8️⃣ Return response
     res.status(200).json({
       message: `Collector changed successfully from "${previousCollector}" to "${collectorType}"`,
       updatedBooking: {
         bookingId: booking.bookingId,
-        movieName: booking.movieName,
+        movieId: booking.movieId,
         date: booking.date,
         time: booking.timing,
         previousCollector,
@@ -142,10 +161,17 @@ export const changecollector = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error changing collector:", error);
-    res.status(500).json({ message: "Error changing collector" });
+    console.error("Critical error in changecollector:", error);
+
+    res.status(500).json({
+      message: "Failed to change collector due to server error",
+      error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
   }
 };
+
+
 
 
 
@@ -168,15 +194,21 @@ export const previewCollectorChange = async (req, res) => {
     const booking = await Booking.findOne({ bookingId: bookingid });
     if (!booking) return res.status(404).json({ message: "Booking not found" });
 
-    // 2️⃣ Find movie
-    const movie = await Movie.findOne({ title: booking.movieName });
+    // 2️⃣ Find movie by ID if available, fallback to name
+    let movie;
+    if (booking.movieId) {
+      movie = await Movie.findById(booking.movieId);
+    } else {
+      movie = await Movie.findOne({ title: booking.movieName });
+    }
+
     if (!movie) return res.status(404).json({ message: "Movie not found" });
 
     // 3️⃣ Match show
     const show = movie.shows.find(
       (s) =>
-        new Date(s.date).toDateString() ===
-          new Date(booking.date).toDateString() && s.time === booking.timing
+        new Date(s.date).toDateString() === new Date(booking.date).toDateString() &&
+        s.time === booking.timing
     );
     if (!show) return res.status(404).json({ message: "Show not found" });
 
@@ -234,8 +266,9 @@ export const previewCollectorChange = async (req, res) => {
 
     // 5️⃣ Calculate totals
     const currentTotalAmount =
-      booking.adult * currentAdultPrice + booking.kids * currentKidsPrice;
-    const newTotalAmount = booking.adult * adultPrice + booking.kids * kidsPrice;
+      (booking.adult || 0) * currentAdultPrice + (booking.kids || 0) * currentKidsPrice;
+    const newTotalAmount =
+      (booking.adult || 0) * adultPrice + (booking.kids || 0) * kidsPrice;
 
     // 6️⃣ Send preview
     res.status(200).json({
@@ -261,3 +294,4 @@ export const previewCollectorChange = async (req, res) => {
     });
   }
 };
+
