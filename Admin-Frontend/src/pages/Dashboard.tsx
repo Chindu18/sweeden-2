@@ -24,6 +24,7 @@ interface Booking {
   ticketType: string;
   collectorChangedFrom: string;
   totalAmount: number;
+  collectorType: string;
 }
 
 const Dashboard = () => {
@@ -272,8 +273,8 @@ const Dashboard = () => {
     </CardContent>
   </Card>
 
-  <Card asChild>
-    <Link to="/collectors">
+  <Card>
+    <Link to="/collectors" className="block">
       <CardContent className="p-6 flex justify-between items-center">
         <div>
           <p className="text-sm text-muted-foreground">Collectors</p>

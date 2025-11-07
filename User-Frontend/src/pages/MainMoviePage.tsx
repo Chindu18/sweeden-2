@@ -139,9 +139,9 @@ const MovieCard = ({ movie }: { movie: Movie }) => {
         <div className="flex items-center justify-between gap-4">
           <Rating score={movie.rating || 4.5} />
           <Button
-            variant="gradient"
+            variant="default"
             size="sm"
-            className="rounded-full flex-1 text-white font-semibold bg-gradient-to-r from-[#0072ff] to-[#00c6a7] text-white"
+            className="rounded-full flex-1 text-white font-semibold bg-gradient-to-r from-[#0072ff] to-[#00c6a7] text-white"
             onClick={(e) => {
               e.stopPropagation();
               navigate(`/movie/${movie.title}/${movie._id}`);
@@ -269,16 +269,7 @@ useEffect(() => {
       ))}
     </div>
 
-    {/* Button */}
-    <div className="text-center">
-      <Button
-        variant="default"
-        size="lg"
-        className="rounded-full bg-[#2463eb] text-white hover:bg-[#1d4ed8] transition-all font-semibold px-8 py-6"
-      >
-        Order Snacks with Your Booking
-      </Button>
-    </div>
+   
   </div>
 </section>
     </div>
